@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EventCatalogServiceApplication {
+public class EventCatalogService {
 
     public static void main(String[] args) {
-        SpringApplication.run(EventCatalogServiceApplication.class, args);
+        SpringApplication.run(EventCatalogService.class, args);
     }
 
 }
