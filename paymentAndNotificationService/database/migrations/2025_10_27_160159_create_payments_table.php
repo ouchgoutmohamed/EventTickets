@@ -19,9 +19,9 @@ return new class extends Migration
             $table->unsignedBigInteger('event_id');
             $table->unsignedBigInteger('ticket_id');
             $table->unsignedInteger('amount');
-            $table->enum('status', PaymentStatus::cases());
+            $table->enum('status', PaymentStatus::cases())->default(PaymentStatus::PENDING->value);
             $table->enum('method', PaymentMethod::cases());
-            $table->string("transaction_id");
+            $table->string("transaction_id")->nullable();
             $table->timestamps();
         });
     }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePaymentRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class StorePaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,12 +24,13 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'currency' => 'required|string|size:3',
             'user_id' => 'required|integer', 
             'event_id' => 'required|integer', 
             'ticket_id' => 'required|integer', 
+            'currency' => 'required|string|size:3',
             'amount' => 'required|numeric|min:0.01',
-            'method' => 'required|string',
+            'method' => ['required', Rule::in(array_column(PaymentMethod::cases(), 'value')),],
+            // 'status' => ['required', Rule::in(array_column(PaymentStatus::cases(), 'value')),]
         ];
     }
 }

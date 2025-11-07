@@ -5,5 +5,5 @@ use App\Http\Controllers\Api\V1\PaymentController;
 
 Route::prefix('v1')->group(function () {
     Route::post('payments', [PaymentController::class, 'store']);
-    Route::get('payments/{id}', [PaymentController::class, 'show']);
+    Route::get('payments/{payment}', [PaymentController::class, 'show']);
 });
