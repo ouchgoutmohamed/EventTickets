@@ -12,6 +12,24 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $query = Payment::query();
+
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        $payments = $query->latest()->get();
+
+        return PaymentResource::collection($payments);
+    }
+
+    public function show(Payment $payment)
+    {
+        return new PaymentResource($payment);
+    }
     public function store(StorePaymentRequest $request)
     {
         $payment = Payment::create($request->validated());
@@ -33,11 +51,6 @@ class PaymentController extends Controller
         }
 
         // Step 3. Return resource
-        return new PaymentResource($payment);
-    }
-
-    public function show(Payment $payment)
-    {
         return new PaymentResource($payment);
     }
 }
