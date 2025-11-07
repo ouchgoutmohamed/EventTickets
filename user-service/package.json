@@ -9,6 +9,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:reset": "prisma migrate reset",
+    "setup": "npm install && npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["express", "prisma", "jwt", "authentication", "microservice"],
@@ -25,5 +28,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
