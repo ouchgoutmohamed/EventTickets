@@ -18,6 +18,8 @@ public class TicketType {
     private double price ;
     private int quantity ;
 
+    private boolean deleted;
+
     @ManyToOne
     @JoinColumn(name="event_id")
     private Event event;

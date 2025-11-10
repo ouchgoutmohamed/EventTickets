@@ -22,6 +22,8 @@ public class Venue {
     private String city ;
     private int capacity ;
 
+    private boolean deleted;
+
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Event> events;
 }

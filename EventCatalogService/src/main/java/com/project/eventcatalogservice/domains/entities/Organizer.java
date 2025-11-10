@@ -21,6 +21,8 @@ public class Organizer {
 
     private String lastName;
 
+    private boolean deleted ;
+
     @Column(unique = true ,nullable = false)
     private String email;
 
