@@ -20,6 +20,8 @@ public class Category {
 
     private String description;
 
+    private boolean deleted ;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Event> events;
 }

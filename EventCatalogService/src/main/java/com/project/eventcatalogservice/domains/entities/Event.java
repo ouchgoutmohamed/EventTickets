@@ -1,5 +1,6 @@
 package com.project.eventcatalogservice.domains.entities;
 
+import com.project.eventcatalogservice.domains.enums.CategoryType;
 import com.project.eventcatalogservice.domains.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,9 +33,8 @@ public class Event {
     @Enumerated
     private EventStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Enumerated(EnumType.STRING)
+    private CategoryType category;
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
@@ -43,6 +43,8 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue venue;
+
+    private boolean deleted;
 
     @ManyToMany
     @JoinTable(name = "event_artist", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "artist_id")
