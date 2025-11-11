@@ -7,12 +7,12 @@ const { verifyRefreshToken } = require('../utils/jwt.util');
  */
 const register = async (req, res, next) => {
   try {
-    const { nom, prenom, email, roleId } = req.body;
+    const { nom, prenom, email, roleId, roleNom } = req.body;
     // Accepter motDePasse (français) ou password (anglais)
     const motDePasse = req.body.motDePasse || req.body.password;
 
     const result = await authService.register(
-      { nom, prenom, email, motDePasse, roleId },
+      { nom, prenom, email, motDePasse, roleId, roleNom },
       req
     );
 
