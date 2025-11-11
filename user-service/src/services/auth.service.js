@@ -9,7 +9,23 @@ const prisma = new PrismaClient();
  * Service d'inscription d'un nouvel utilisateur
  */
 const register = async (userData, req) => {
-  const { nom, prenom, email, motDePasse, roleId = 1 } = userData;
+  const { nom, prenom, email, motDePasse, roleId, roleNom } = userData;
+
+  // Déterminer le roleId (soit directement fourni, soit via roleNom, sinon défaut = 1)
+  let finalRoleId = roleId || 1;
+  
+  if (roleNom && !roleId) {
+    // Si roleNom est fourni mais pas roleId, chercher le rôle par son nom
+    const role = await prisma.role.findUnique({
+      where: { nom: roleNom },
+    });
+    
+    if (!role) {
+      throw new Error(`Le rôle "${roleNom}" n'existe pas`);
+    }
+    
+    finalRoleId = role.id;
+  }
 
   // Vérifier si l'email existe déjà
   const existingUser = await prisma.user.findUnique({
@@ -30,7 +46,7 @@ const register = async (userData, req) => {
       prenom,
       email,
       motDePasse: motDePasseHash,
-      roleId,
+      roleId: finalRoleId,
       profil: {
         create: {},
       },
@@ -54,9 +70,19 @@ const register = async (userData, req) => {
     },
   });
 
-  // Générer les tokens
-  const token = generateToken({ userId: user.id, email: user.email });
-  const refreshToken = generateRefreshToken({ userId: user.id });
+  // Générer les tokens avec les informations complètes pour les autres services
+  const token = generateToken({ 
+    userId: user.id, 
+    email: user.email,
+    roleId: user.roleId,
+    roleName: user.role.nom,
+    organizerId: user.role.nom === 'organisateur' ? user.id : null
+  });
+  const refreshToken = generateRefreshToken({ 
+    userId: user.id,
+    roleId: user.roleId,
+    organizerId: user.role.nom === 'organisateur' ? user.id : null
+  });
 
   // Retourner les données (sans le mot de passe)
   const { motDePasse: _, ...userWithoutPassword } = user;
@@ -126,9 +152,19 @@ const login = async (email, motDePasse, req) => {
     },
   });
 
-  // Générer les tokens
-  const token = generateToken({ userId: user.id, email: user.email });
-  const refreshToken = generateRefreshToken({ userId: user.id });
+  // Générer les tokens avec les informations complètes pour les autres services
+  const token = generateToken({ 
+    userId: user.id, 
+    email: user.email,
+    roleId: user.roleId,
+    roleName: user.role.nom,
+    organizerId: user.role.nom === 'organisateur' ? user.id : null
+  });
+  const refreshToken = generateRefreshToken({ 
+    userId: user.id,
+    roleId: user.roleId,
+    organizerId: user.role.nom === 'organisateur' ? user.id : null
+  });
 
   // Retourner les données (sans le mot de passe)
   const { motDePasse: _, ...userWithoutPassword } = user;
@@ -147,6 +183,10 @@ const refreshAccessToken = async (userId) => {
   // Vérifier que l'utilisateur existe
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: {
+      role: true,
+      profil: true,
+    },
   });
 
   if (!user) {
@@ -157,8 +197,14 @@ const refreshAccessToken = async (userId) => {
     throw new Error('Compte inactif');
   }
 
-  // Générer un nouveau token d'accès
-  const token = generateToken({ userId: user.id, email: user.email });
+  // Générer un nouveau token d'accès avec les informations complètes
+  const token = generateToken({ 
+    userId: user.id, 
+    email: user.email,
+    roleId: user.roleId,
+    roleName: user.role.nom,
+    organizerId: user.role.nom === 'organisateur' ? user.id : null
+  });
 
   return { token };
 };

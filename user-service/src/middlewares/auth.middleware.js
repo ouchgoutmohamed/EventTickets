@@ -52,6 +52,7 @@ const authenticate = async (req, res, next) => {
       role: user.role.nom,
       roleId: user.roleId,
       permissions: user.role.permissions,
+      organizerId: user.role.nom === 'organisateur' ? user.id : null,
     };
 
     next();
@@ -86,6 +87,7 @@ const optionalAuthenticate = async (req, res, next) => {
       where: { id: decoded.userId },
       include: {
         role: true,
+        profil: true,
       },
     });
 
@@ -98,6 +100,7 @@ const optionalAuthenticate = async (req, res, next) => {
         role: user.role.nom,
         roleId: user.roleId,
         permissions: user.role.permissions,
+        organizerId: user.role.nom === 'organisateur' ? user.id : null,
       };
     }
 
