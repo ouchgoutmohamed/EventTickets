@@ -51,10 +51,6 @@ router.post(
       .trim()
       .isLength({ max: 255 })
       .withMessage('La description ne doit pas dépasser 255 caractères'),
-    body('permissions')
-      .optional()
-      .isObject()
-      .withMessage('Les permissions doivent être un objet JSON'),
     handleValidationErrors,
   ],
   roleController.createRole
@@ -75,10 +71,6 @@ router.put(
       .trim()
       .isLength({ max: 255 })
       .withMessage('La description ne doit pas dépasser 255 caractères'),
-    body('permissions')
-      .optional()
-      .isObject()
-      .withMessage('Les permissions doivent être un objet JSON'),
     handleValidationErrors,
   ],
   roleController.updateRole
