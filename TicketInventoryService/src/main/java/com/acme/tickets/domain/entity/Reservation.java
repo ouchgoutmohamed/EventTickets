@@ -2,6 +2,10 @@ package com.acme.tickets.domain.entity;
 
 import com.acme.tickets.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -16,8 +20,13 @@ import java.util.Objects;
         @Index(name = "idx_reservation_event_id", columnList = "event_id"),
         @Index(name = "idx_reservation_status", columnList = "status"),
         @Index(name = "idx_reservation_idempotency_key", columnList = "idempotency_key", unique = true)
-    }
-)
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Data
+public class Reservation {
+@data
 public class Reservation {
 
     @Id
@@ -54,15 +63,7 @@ public class Reservation {
         // Constructeur requis par JPA
     }
 
-    public Reservation(Long eventId, Long userId, Integer quantity, ReservationStatus status) {
-        this.eventId = eventId;
-        this.userId = userId;
-        this.quantity = quantity;
-        this.status = status;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
-
+    
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
