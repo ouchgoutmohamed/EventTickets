@@ -34,7 +34,7 @@ const getRoleById = async (roleId) => {
  * Service pour créer un nouveau rôle
  */
 const createRole = async (roleData) => {
-  const { nom, description, permissions } = roleData;
+  const { nom, description } = roleData;
 
   // Vérifier si le rôle existe déjà
   const existingRole = await prisma.role.findUnique({
@@ -49,7 +49,6 @@ const createRole = async (roleData) => {
     data: {
       nom,
       description,
-      permissions,
     },
   });
 
@@ -60,13 +59,12 @@ const createRole = async (roleData) => {
  * Service pour mettre à jour un rôle
  */
 const updateRole = async (roleId, roleData) => {
-  const { description, permissions } = roleData;
+  const { description } = roleData;
 
   const role = await prisma.role.update({
     where: { id: roleId },
     data: {
       description,
-      permissions,
     },
   });
 

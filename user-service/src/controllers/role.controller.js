@@ -48,9 +48,9 @@ const getRoleById = async (req, res, next) => {
  */
 const createRole = async (req, res, next) => {
   try {
-    const { nom, description, permissions } = req.body;
+    const { nom, description } = req.body;
 
-    const role = await roleService.createRole({ nom, description, permissions });
+    const role = await roleService.createRole({ nom, description });
 
     return successResponse(
       res,
@@ -72,9 +72,9 @@ const createRole = async (req, res, next) => {
 const updateRole = async (req, res, next) => {
   try {
     const roleId = parseInt(req.params.id);
-    const { description, permissions } = req.body;
+    const { description } = req.body;
 
-    const role = await roleService.updateRole(roleId, { description, permissions });
+    const role = await roleService.updateRole(roleId, { description });
 
     return successResponse(
       res,
