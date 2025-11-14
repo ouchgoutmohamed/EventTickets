@@ -1,25 +1,13 @@
 # ========================================
-# Application Configuration
+# Spring Configuration
 # ========================================
 spring:
   application:
     name: ticket-inventory-service
 
-# ========================================
-# Server Configuration
-# ========================================
-server:
-  port: 8082
-  error:
-    include-message: always
-    include-binding-errors: always
-  compression:
-    enabled: true
-
-# ========================================
-# Database Configuration
-# ========================================
-spring:
+  # ========================================
+  # Database Configuration
+  # ========================================
   datasource:
     url: jdbc:mysql://localhost:3306/ticket_inventory?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
@@ -49,16 +37,26 @@ spring:
         order_updates: true
     open-in-view: false  # Évite les lazy loading hors transaction
 
-# ========================================
-# Jackson Configuration (JSON)
-# ========================================
-spring:
+  # ========================================
+  # Jackson Configuration (JSON)
+  # ========================================
   jackson:
     serialization:
       write-dates-as-timestamps: false
       indent-output: false
     time-zone: UTC
     default-property-inclusion: non_null
+
+# ========================================
+# Server Configuration
+# ========================================
+server:
+  port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+  compression:
+    enabled: true
 
 # ========================================
 # SpringDoc OpenAPI Configuration
