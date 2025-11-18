@@ -13,24 +13,22 @@ spring:
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+    spring:
+      application:
+        name: ticket-inventory-service
 
-  # ========================================
-  # JPA/Hibernate Configuration
-  # ========================================
-  jpa:
-    hibernate:
-      ddl-auto: update  # TODO: Utiliser 'validate' en production avec Flyway/Liquibase
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+      # Default profile uses MySQL (prod-like)
+      datasource:
+        url: jdbc:mysql://localhost:3306/ticket_inventory?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        hikari:
+          maximum-pool-size: 10
+          minimum-idle: 5
+          connection-timeout: 30000
+          idle-timeout: 600000
+          max-lifetime: 1800000
         jdbc:
           batch_size: 20
         order_inserts: true
@@ -46,6 +44,29 @@ spring:
       indent-output: false
     time-zone: UTC
     default-property-inclusion: non_null
+
+---
+# Development profile: run with embedded H2
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:ticket_inventory;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 # ========================================
 # Server Configuration
