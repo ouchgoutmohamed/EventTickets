@@ -15,7 +15,6 @@ public record CreateEventRequest(
         LocalDateTime endTime,
         EventStatus status,
         CategoryType category,
-        Long organizerId,
         Long venueId,
         List<Long> artistIds,
         List<CreateTicketTypeRequest> ticketTypes,

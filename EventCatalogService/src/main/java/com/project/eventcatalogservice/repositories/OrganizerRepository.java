@@ -7,9 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrganizerRepository extends JpaRepository<Organizer,Long> {
     @Query("select o from Organizer o where o.deleted=false ")
     List<Organizer> findAllNotDeleted();
+
+    Optional<Organizer> findByUserId(Long userId);
+
 }

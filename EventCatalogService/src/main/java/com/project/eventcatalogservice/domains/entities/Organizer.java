@@ -17,6 +17,8 @@ public class Organizer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     private String firstName;
 
     private String lastName;
@@ -26,7 +28,7 @@ public class Organizer {
     @Column(unique = true ,nullable = false)
     private String email;
 
-    @Column(unique = true ,nullable = false)
+    @Column(unique = true ,nullable = true)
     private String phone;
 
     @OneToMany(mappedBy = "organizer" , cascade = CascadeType.ALL)

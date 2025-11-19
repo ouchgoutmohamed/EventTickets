@@ -3,34 +3,46 @@ package com.project.eventcatalogservice.security;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
+import java.util.List;
 
 @Data
 public class CustomUserDetails implements UserDetails {
 
-    private Long organizerId;
+    private Long userId;
     private String email;
-    private String role;
+    private Long organizerId;
+    private Long roleId;      // ID du rôle
+    private String roleName;
+    private Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long organizerId, String email, String role) {
-        this.organizerId = organizerId;
+
+    public CustomUserDetails(Long userId, String email, Long organizerId, Long roleId, String roleName) {
+        this.userId = userId;
         this.email = email;
-        this.role = role;
+        this.organizerId = organizerId;
+        this.roleId = roleId;
+        this.roleName = roleName;
+        this.authorities = List.of(() -> roleName);
+
+
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // ou mapper les rôles si tu veux gérer Admin/Organizer
+        return authorities;
     }
 
     @Override
     public String getPassword() {
-        return null; // pas nécessaire ici
+        return null; // Pas nécessaire ici
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return email != null ? email : "";
     }
 
     @Override
