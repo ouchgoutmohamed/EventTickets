@@ -1,13 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-// 
-// ⚠️ BASE DE DONNÉES UNIQUE PARTAGÉE
-// Cette base de données (sibe_db) est partagée entre tous les microservices SIBE:
-// - User Service (port 3001)
-// - Event Catalog Service (port 3002)
-// - Ticket Inventory Service (port 3003)
-// - Payment Service (à venir)
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -18,80 +8,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// TABLES DU SERVICE UTILISATEUR (USER SERVICE)
-// ============================================
-
-// Modèle Rôle (Role)
 model Role {
   id          Int      @id @default(autoincrement())
   nom         String   @unique @db.VarChar(50)
   description String?  @db.VarChar(255)
-  permissions Json?    // Stockage des permissions en JSON
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  users User[]
+  users       User[]
 
   @@map("roles")
 }
 
-// Modèle Utilisateur (User)
 model User {
-  id            Int      @id @default(autoincrement())
-  nom           String   @db.VarChar(100)
-  prenom        String   @db.VarChar(100)
-  email         String   @unique @db.VarChar(150)
-  motDePasse    String   @db.VarChar(255) // mot de passe haché
-  dateCreation  DateTime @default(now())
-  etat          String   @default("actif") @db.VarChar(20) // actif, inactif, suspendu
-  roleId        Int      @default(1) // Par défaut: client (roleId = 1)
-  emailVerifie  Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  role                 Role                   @relation(fields: [roleId], references: [id])
-  profil               Profil?
+  id                   Int                   @id @default(autoincrement())
+  nom                  String                @db.VarChar(100)
+  prenom               String                @db.VarChar(100)
+  email                String                @unique @db.VarChar(150)
+  motDePasse           String                @db.VarChar(255)
+  dateCreation         DateTime              @default(now())
+  etat                 String                @default("actif") @db.VarChar(20)
+  roleId               Int                   @default(1)
+  emailVerifie         Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
   historiqueConnexions HistoriqueConnexion[]
+  profil               Profil?
+  role                 Role                  @relation(fields: [roleId], references: [id])
 
   @@index([email])
   @@index([roleId])
   @@map("users")
 }
 
-// Modèle Profil (Profile)
 model Profil {
-  id             Int       @id @default(autoincrement())
-  utilisateurId  Int       @unique
-  adresse        String?   @db.VarChar(255)
-  ville          String?   @db.VarChar(100)
-  codePostal     String?   @db.VarChar(20)
-  pays           String?   @db.VarChar(100)
-  telephone      String?   @db.VarChar(20)
-  dateNaissance  DateTime?
-  photo          String?   @db.VarChar(255) // URL de la photo
-  preferences    Json?     // Préférences utilisateur (notifications, langues, etc.)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  utilisateur User @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  id            Int       @id @default(autoincrement())
+  utilisateurId Int       @unique
+  adresse       String?   @db.VarChar(255)
+  ville         String?   @db.VarChar(100)
+  codePostal    String?   @db.VarChar(20)
+  pays          String?   @db.VarChar(100)
+  telephone     String?   @db.VarChar(20)
+  dateNaissance DateTime?
+  photo         String?   @db.VarChar(255)
+  preferences   String?   @db.LongText
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  utilisateur   User      @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 
   @@map("profils")
 }
 
-// Modèle Historique de Connexion (ConnectionHistory)
 model HistoriqueConnexion {
   id              Int      @id @default(autoincrement())
   utilisateurId   Int
   dateConnexion   DateTime @default(now())
-  adresseIp       String   @db.VarChar(45) // Support IPv4 et IPv6
+  adresseIp       String   @db.VarChar(45)
   navigateur      String?  @db.VarChar(255)
   systemeExploit  String?  @db.VarChar(100)
   appareil        String?  @db.VarChar(100)
   succesConnexion Boolean  @default(true)
   createdAt       DateTime @default(now())
-
-  utilisateur User @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  utilisateur     User     @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 
   @@index([utilisateurId])
   @@index([dateConnexion])

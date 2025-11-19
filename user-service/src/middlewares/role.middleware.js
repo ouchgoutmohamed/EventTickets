@@ -55,24 +55,21 @@ const isOrganisateur = (req, res, next) => {
 
 /**
  * Middleware pour vérifier si l'utilisateur a une permission spécifique
+ * Note: This middleware is deprecated as permissions system has been removed.
+ * Use role-based middleware (isAdmin, isOrganisateur) instead.
  * @param {String} permission - Permission requise
  */
 const hasPermission = (permission) => {
   return (req, res, next) => {
+    console.warn(`hasPermission('${permission}') middleware is deprecated. Use role-based middleware instead.`);
+    
     if (!req.user) {
       return forbiddenResponse(res, 'Authentification requise');
     }
 
-    const permissions = req.user.permissions || {};
-
-    // Si l'utilisateur a fullAccess, autoriser
-    if (permissions.fullAccess === true) {
-      return next();
-    }
-
-    // Vérifier la permission spécifique
-    if (!permissions[permission]) {
-      return forbiddenResponse(res, `Permission requise: ${permission}`);
+    // Since permissions are removed, default to admin-only access
+    if (req.user.role !== 'administrateur') {
+      return forbiddenResponse(res, 'Accès réservé aux administrateurs');
     }
 
     next();

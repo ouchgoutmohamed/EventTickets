@@ -51,7 +51,6 @@ const authenticate = async (req, res, next) => {
       email: user.email,
       role: user.role.nom,
       roleId: user.roleId,
-      permissions: user.role.permissions,
       organizerId: user.role.nom === 'organisateur' ? user.id : null,
     };
 
@@ -99,7 +98,6 @@ const optionalAuthenticate = async (req, res, next) => {
         email: user.email,
         role: user.role.nom,
         roleId: user.roleId,
-        permissions: user.role.permissions,
         organizerId: user.role.nom === 'organisateur' ? user.id : null,
       };
     }
