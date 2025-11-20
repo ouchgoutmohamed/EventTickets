@@ -27,7 +27,7 @@ class PaymentRequest extends FormRequest
             'user_id' => 'required|integer', 
             'event_id' => 'required|integer', 
             'ticket_id' => 'required|integer', 
-            'currency' => 'string',
+            'currency' => 'required|string',
             'amount' => 'required|numeric|min:0.01',
             'method' => ['required', Rule::in(array_column(PaymentMethod::cases(), 'value')),],
         ];

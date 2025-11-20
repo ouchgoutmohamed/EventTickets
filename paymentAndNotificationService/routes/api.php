@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('payments')->group(function () {
     Route::post('/', [PaymentController::class, 'execute']);
-    Route::post('/{id}/refund', [PaymentController::class, 'refund']);
-    Route::get('/user/{userId}', [PaymentController::class, 'userPayments']);
+    Route::post('/{payment}/refund', [PaymentController::class, 'refund']);
+
+    Route::get('/', [PaymentController::class, 'userPayments']);
+    Route::get('/{payment}', [PaymentController::class, 'show']);
 });

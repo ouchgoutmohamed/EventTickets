@@ -13,8 +13,10 @@ class PaymentService
     {
         $payment = Payment::create([
             'user_id' => $data['user_id'],
-            'transaction_id' => Str::uuid(),
+            'event_id' => $data['event_id'],
+            'ticket_id' => $data['ticket_id'],
             'amount' => $data['amount'],
+            'currency' => $data['currency'],
             'method' => $data['method'],
             'status' => PaymentStatus::PENDING,
         ]);
@@ -24,7 +26,10 @@ class PaymentService
             $success = rand(0, 1); // Fake outcome
 
             if ($success) {
-                $payment->update(['status' => PaymentStatus::SUCCESS]);
+                $payment->update([
+                    'status' => PaymentStatus::SUCCESS,
+                    'transaction_id' => Str::uuid(),
+                ]);
             } else {
                 $payment->update([
                     'status' => PaymentStatus::FAILED,
@@ -42,9 +47,9 @@ class PaymentService
         }
     }
 
-    public function refund(Payment $payment, string $reason = null): Payment
+    public function refund(Payment $payment, ?string $reason = null): Payment
     {
-        if ($payment->status !== PaymentStatus::SUCCESS) {
+        if ($payment->status !== PaymentStatus::SUCCESS->value) {
             throw new Exception('Only successful payments can be refunded');
         }
 
