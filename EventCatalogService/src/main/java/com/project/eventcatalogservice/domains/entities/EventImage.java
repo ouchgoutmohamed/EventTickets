@@ -17,6 +17,8 @@ public class EventImage {
     private String url;
     private String altText ;
 
+    private boolean deleted;
+
     @ManyToOne
     @JoinColumn(name= "event_id")
     private Event event;

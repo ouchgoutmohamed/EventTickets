@@ -20,6 +20,8 @@ public class Artist {
     private String genre ;
     private String country ;
 
+    private boolean deleted;
+
     @ManyToMany(mappedBy = "artists")
     private List<Event> events;
 }
