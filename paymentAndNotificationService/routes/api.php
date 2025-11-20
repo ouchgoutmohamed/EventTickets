@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\PaymentController;
+use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
-    Route::get('payments', [PaymentController::class, 'index']);
-    Route::get('payments/{payment}', [PaymentController::class, 'show']);
-    
-    Route::post('payments', [PaymentController::class, 'store']);
+Route::prefix('payments')->group(function () {
+    Route::post('/', [PaymentController::class, 'execute']);
+    Route::post('/{id}/refund', [PaymentController::class, 'refund']);
+    Route::get('/user/{userId}', [PaymentController::class, 'userPayments']);
 });

@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\PaymentMethod;
+use App\Enums\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StorePaymentRequest extends FormRequest
+class PaymentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +27,9 @@ class StorePaymentRequest extends FormRequest
             'user_id' => 'required|integer', 
             'event_id' => 'required|integer', 
             'ticket_id' => 'required|integer', 
-            'currency' => 'required|string|size:3',
+            'currency' => 'string',
             'amount' => 'required|numeric|min:0.01',
             'method' => ['required', Rule::in(array_column(PaymentMethod::cases(), 'value')),],
-            // 'status' => ['required', Rule::in(array_column(PaymentStatus::cases(), 'value')),]
         ];
     }
 }
