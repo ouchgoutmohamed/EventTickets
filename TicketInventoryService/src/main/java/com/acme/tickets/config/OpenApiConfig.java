@@ -25,15 +25,7 @@ public class OpenApiConfig {
             .info(new Info()
                 .title("Ticket Inventory Service API")
                 .description("""
-                    API de gestion des inventaires de tickets et des réservations pour les événements.
-                    
-                    **Fonctionnalités principales:**
-                    - Réservation temporaire de tickets (15 minutes)
-                    - Confirmation de réservations
-                    - Annulation/libération de réservations
-                    - Consultation de disponibilités
-                    - Historique des réservations utilisateur
-                    
+                    API de gestion des inventaires de tickets et des réservations pour les événements.                
                     **Idempotence:** Les opérations de réservation supportent le header `Idempotency-Key`.
                     """)
                 .version("1.0.0")

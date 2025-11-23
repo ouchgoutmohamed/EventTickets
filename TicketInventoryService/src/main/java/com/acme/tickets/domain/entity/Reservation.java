@@ -4,6 +4,11 @@ import com.acme.tickets.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entité représentant une réservation de tickets pour un événement.
@@ -18,6 +23,11 @@ import java.util.Objects;
         @Index(name = "idx_reservation_idempotency_key", columnList = "idempotency_key", unique = true)
     }
 )
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Getter
+@Setter
 public class Reservation {
 
     @Id
@@ -50,10 +60,6 @@ public class Reservation {
     @Column(name = "idempotency_key", length = 64)
     private String idempotencyKey;
 
-    protected Reservation() {
-        // Constructeur requis par JPA
-    }
-
     public Reservation(Long eventId, Long userId, Integer quantity, ReservationStatus status) {
         this.eventId = eventId;
         this.userId = userId;
@@ -73,78 +79,4 @@ public class Reservation {
         this.updatedAt = Instant.now();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Reservation)) return false;
-        Reservation that = (Reservation) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    // Getters et Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
-    }
-
-    public Instant getHoldExpiresAt() {
-        return holdExpiresAt;
-    }
-
-    public void setHoldExpiresAt(Instant holdExpiresAt) {
-        this.holdExpiresAt = holdExpiresAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getIdempotencyKey() {
-        return idempotencyKey;
-    }
-
-    public void setIdempotencyKey(String idempotencyKey) {
-        this.idempotencyKey = idempotencyKey;
-    }
 }

@@ -1,5 +1,6 @@
 package com.acme.tickets.service;
 
+import com.acme.tickets.config.TicketInventoryProperties;
 import com.acme.tickets.domain.entity.Inventory;
 import com.acme.tickets.domain.entity.Reservation;
 import com.acme.tickets.domain.enums.ReservationStatus;
@@ -17,7 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -29,6 +33,7 @@ import static org.mockito.Mockito.*;
  * Utilise Mockito pour isoler la logique métier.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("TicketInventoryService - Tests Unitaires")
 class TicketInventoryServiceTest {
 
@@ -40,6 +45,9 @@ class TicketInventoryServiceTest {
 
     @Mock
     private TicketRepository ticketRepository;
+
+    @Mock
+    private TicketInventoryProperties properties;
 
     @InjectMocks
     private TicketInventoryService service;
@@ -55,6 +63,10 @@ class TicketInventoryServiceTest {
 
         // Requête valide
         validRequest = new ReserveRequest(1L, 42L, 2);
+        
+        // Mock properties
+        when(properties.getReservationHoldMinutes()).thenReturn(15);
+        when(properties.getMaxTicketsPerReservation()).thenReturn(10);
     }
 
     @Test
@@ -62,6 +74,7 @@ class TicketInventoryServiceTest {
     void shouldReserveTicketsWhenStockAvailable() {
         // GIVEN
         Reservation savedReservation = new Reservation(1L, 42L, 2, ReservationStatus.PENDING);
+        savedReservation.setHoldExpiresAt(Instant.now().plusSeconds(900)); // 15 minutes
         // Utiliser reflection pour simuler l'ID JPA généré
         try {
             var idField = Reservation.class.getDeclaredField("id");
@@ -83,7 +96,7 @@ class TicketInventoryServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.reservationId()).isEqualTo(123L);
         assertThat(response.status()).isEqualTo("PENDING");
-        assertThat(response.holdExpiresAt()).isNotNull();
+        assertThat(response.holdExpiresAt()).isNotNull().isAfter(Instant.now());
 
         // Vérifier que le stock a été décrémenté
         verify(inventoryRepository).save(argThat(inv ->
