@@ -72,20 +72,45 @@ const ReservationList = ({ reservations = [], onUpdate }) => {
           </TabsTrigger>
         </TabsList>
 
-        {Object.keys(RESERVATION_STATUS).map(status => (
-          <TabsContent key={status} value={status}>
-            <ReservationCards
-              reservations={filterReservations(status)}
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-              loading={loading}
-            />
-          </TabsContent>
-        ))}
-
         <TabsContent value="all">
           <ReservationCards
             reservations={reservations}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            loading={loading}
+          />
+        </TabsContent>
+
+        <TabsContent value={RESERVATION_STATUS.PENDING}>
+          <ReservationCards
+            reservations={filterReservations(RESERVATION_STATUS.PENDING)}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            loading={loading}
+          />
+        </TabsContent>
+
+        <TabsContent value={RESERVATION_STATUS.CONFIRMED}>
+          <ReservationCards
+            reservations={filterReservations(RESERVATION_STATUS.CONFIRMED)}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            loading={loading}
+          />
+        </TabsContent>
+
+        <TabsContent value={RESERVATION_STATUS.CANCELED}>
+          <ReservationCards
+            reservations={filterReservations(RESERVATION_STATUS.CANCELED)}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            loading={loading}
+          />
+        </TabsContent>
+
+        <TabsContent value={RESERVATION_STATUS.EXPIRED}>
+          <ReservationCards
+            reservations={filterReservations(RESERVATION_STATUS.EXPIRED)}
             onConfirm={handleConfirm}
             onCancel={handleCancel}
             loading={loading}

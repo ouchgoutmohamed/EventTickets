@@ -350,7 +350,10 @@ const EventDetailsPage = () => {
                                          <button 
                                              onClick={() => updateQuantity(ticket.id, 1)} 
                                              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-30"
-                                             disabled={ticket.quantity <= 0 || (ticketQuantities[ticket.id] || 0) >= ticket.quantity || (ticketQuantities[ticket.id] || 0) >= 10}
+                                             disabled={(() => {
+                                               const selectedQty = ticketQuantities[ticket.id] || 0;
+                                               return ticket.quantity <= 0 || selectedQty >= ticket.quantity || selectedQty >= 10;
+                                             })()}
                                          >
                                              <Plus size={14}/>
                                          </button>

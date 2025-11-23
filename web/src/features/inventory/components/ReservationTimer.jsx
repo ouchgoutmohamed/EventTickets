@@ -24,7 +24,6 @@ const ReservationTimer = ({ expiresAt, onExpire, redirectPath = '/' }) => {
 
       if (difference <= 0) {
         setHasExpired(true);
-        setTimeLeft({ minutes: 0, seconds: 0 });
         
         // Appeler le callback d'expiration
         if (onExpire) {
@@ -36,7 +35,7 @@ const ReservationTimer = ({ expiresAt, onExpire, redirectPath = '/' }) => {
           navigate(redirectPath);
         }, 3000);
 
-        return null;
+        return { minutes: 0, seconds: 0, totalSeconds: 0 };
       }
 
       const minutes = Math.floor((difference / 1000 / 60) % 60);
@@ -45,14 +44,13 @@ const ReservationTimer = ({ expiresAt, onExpire, redirectPath = '/' }) => {
       return { minutes, seconds, totalSeconds: Math.floor(difference / 1000) };
     };
 
+    // Calcul initial
+    setTimeLeft(calculateTimeLeft());
+
     // Mise à jour chaque seconde
     const timer = setInterval(() => {
-      const time = calculateTimeLeft();
-      setTimeLeft(time);
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
-
-    // Calcul initial lors du premier rendu
-    calculateTimeLeft();
 
     return () => clearInterval(timer);
   }, [expiresAt, onExpire, navigate, redirectPath]);

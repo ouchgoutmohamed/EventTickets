@@ -202,7 +202,11 @@ const PaymentPage = () => {
               <div className="flex justify-between items-center pt-2">
                 <span className="text-lg font-bold text-gray-900">Total</span>
                 <span className="text-2xl font-extrabold text-green-600">
-                  {reservationDetails.totalPrice || (reservationDetails.quantity * (reservationDetails.unitPrice || 0))} MAD
+                  {(() => {
+                    const total = reservationDetails.totalPrice || 
+                                  (reservationDetails.quantity * (reservationDetails.unitPrice || 0));
+                    return total;
+                  })()} MAD
                 </span>
               </div>
 
