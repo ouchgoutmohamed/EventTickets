@@ -50,6 +50,10 @@ public class Reservation {
     @Column(name = "idempotency_key", length = 64)
     private String idempotencyKey;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     protected Reservation() {
         // Constructeur requis par JPA
     }
@@ -59,6 +63,75 @@ public class Reservation {
         this.userId = userId;
         this.quantity = quantity;
         this.status = status;
+    }
+
+    // ========== BUSINESS LOGIC (Rich Domain Model) ==========
+
+    /**
+     * Vérifie si cette réservation est active (non annulée/expirée).
+     */
+    public boolean isActive() {
+        return status == ReservationStatus.PENDING || status == ReservationStatus.CONFIRMED;
+    }
+
+    /**
+     * Vérifie si cette réservation a expiré.
+     */
+    public boolean isExpired() {
+        return holdExpiresAt != null && Instant.now().isAfter(holdExpiresAt);
+    }
+
+    /**
+     * Vérifie si cette réservation peut être confirmée.
+     */
+    public boolean canBeConfirmed() {
+        return status == ReservationStatus.PENDING && !isExpired();
+    }
+
+    /**
+     * Vérifie si cette réservation peut être libérée/annulée.
+     */
+    public boolean canBeReleased() {
+        return status == ReservationStatus.PENDING || status == ReservationStatus.CONFIRMED;
+    }
+
+    /**
+     * Confirme la réservation (transition d'état).
+     * @throws IllegalStateException si la réservation ne peut pas être confirmée
+     */
+    public void confirm() {
+        if (!canBeConfirmed()) {
+            throw new IllegalStateException(
+                String.format("Cannot confirm reservation %d in status %s", id, status)
+            );
+        }
+        this.status = ReservationStatus.CONFIRMED;
+    }
+
+    /**
+     * Annule la réservation (transition d'état).
+     * @throws IllegalStateException si la réservation ne peut pas être annulée
+     */
+    public void cancel() {
+        if (!canBeReleased()) {
+            throw new IllegalStateException(
+                String.format("Cannot cancel reservation %d in status %s", id, status)
+            );
+        }
+        this.status = ReservationStatus.CANCELED;
+    }
+
+    /**
+     * Marque la réservation comme expirée (transition d'état).
+     * @throws IllegalStateException si la réservation ne peut pas expirer
+     */
+    public void expire() {
+        if (status != ReservationStatus.PENDING) {
+            throw new IllegalStateException(
+                String.format("Cannot expire reservation %d in status %s", id, status)
+            );
+        }
+        this.status = ReservationStatus.EXPIRED;
     }
 
     
@@ -118,10 +191,6 @@ public class Reservation {
 
     public ReservationStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
     }
 
     public Instant getHoldExpiresAt() {

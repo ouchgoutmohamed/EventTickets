@@ -7,13 +7,16 @@ import com.acme.tickets.domain.enums.ReservationStatus;
 import com.acme.tickets.domain.repository.InventoryRepository;
 import com.acme.tickets.domain.repository.ReservationRepository;
 import com.acme.tickets.domain.repository.TicketRepository;
+import com.acme.tickets.config.TicketInventoryProperties;
 import com.acme.tickets.dto.*;
 import com.acme.tickets.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.OptimisticLockException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -26,19 +29,21 @@ import java.util.List;
 public class TicketInventoryService {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketInventoryService.class);
-    private static final int RESERVATION_HOLD_MINUTES = 15;
 
     private final InventoryRepository inventoryRepository;
     private final ReservationRepository reservationRepository;
     private final TicketRepository ticketRepository;
+    private final TicketInventoryProperties properties;
 
     public TicketInventoryService(
             InventoryRepository inventoryRepository,
             ReservationRepository reservationRepository,
-            TicketRepository ticketRepository) {
+            TicketRepository ticketRepository,
+            TicketInventoryProperties properties) {
         this.inventoryRepository = inventoryRepository;
         this.reservationRepository = reservationRepository;
         this.ticketRepository = ticketRepository;
+        this.properties = properties;
     }
 
     /**
@@ -52,36 +57,29 @@ public class TicketInventoryService {
      * @throws InsufficientStockException Si le stock est insuffisant
      */
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3)
     public ReserveResponse reserveTickets(ReserveRequest request, String idempotencyKey) {
-        logger.info("Réservation de {} tickets pour l'événement {} par l'utilisateur {}",
+        logger.debug("Réservation de {} tickets pour l'événement {} par l'utilisateur {}",
             request.quantity(), request.eventId(), request.userId());
 
         // Vérification idempotence
         if (idempotencyKey != null) {
-            var existing = reservationRepository.findByIdempotencyKey(idempotencyKey);
-            if (existing.isPresent()) {
-                Reservation reservation = existing.get();
-                logger.info("Réservation idempotente trouvée: {}", reservation.getId());
-                return new ReserveResponse(
-                    reservation.getId(),
-                    reservation.getStatus().name(),
-                    reservation.getHoldExpiresAt()
-                );
+            Reservation existing = reservationRepository.findByIdempotencyKey(idempotencyKey)
+                .orElse(null);
+            if (existing != null && existing.isActive()) {
+                logger.info("Réservation idempotente trouvée: {}", existing.getId());
+                return buildReserveResponse(existing);
             }
         }
 
         // Récupération de l'inventaire avec verrou
-        Inventory inventory = inventoryRepository.findByIdWithLock(request.eventId())
-            .orElseThrow(() -> new InventoryNotFoundException(request.eventId()));
+        Inventory inventory = getInventoryWithLock(request.eventId());
 
         // Vérification du stock disponible
-        int available = inventory.getAvailable();
-        if (available < request.quantity()) {
-            throw new InsufficientStockException(request.eventId(), request.quantity(), available);
-        }
+        validateSufficientStock(inventory, request.quantity());
 
         // Création de la réservation
-        Instant expiresAt = Instant.now().plus(RESERVATION_HOLD_MINUTES, ChronoUnit.MINUTES);
+        Instant expiresAt = calculateExpirationTime();
         Reservation reservation = new Reservation(
             request.eventId(),
             request.userId(),
@@ -91,8 +89,8 @@ public class TicketInventoryService {
         reservation.setHoldExpiresAt(expiresAt);
         reservation.setIdempotencyKey(idempotencyKey);
 
-        // Mise à jour de l'inventaire
-        inventory.setReserved(inventory.getReserved() + request.quantity());
+        // Mise à jour de l'inventaire avec vérification défensive
+        decrementStock(inventory, request.quantity());
         inventoryRepository.save(inventory);
 
         // Sauvegarde de la réservation
@@ -100,7 +98,7 @@ public class TicketInventoryService {
         
         logger.info("Réservation créée avec succès: {}, expire à {}", saved.getId(), expiresAt);
 
-        return new ReserveResponse(saved.getId(), saved.getStatus().name(), expiresAt);
+        return buildReserveResponse(saved);
     }
 
     /**
@@ -114,13 +112,15 @@ public class TicketInventoryService {
      */
     @Transactional
     public ConfirmResponse confirmReservation(ConfirmRequest request) {
-        logger.info("Confirmation de la réservation {}", request.reservationId());
+        logger.debug("Confirmation de la réservation {}", request.reservationId());
 
-        Reservation reservation = reservationRepository.findById(request.reservationId())
-            .orElseThrow(() -> new ReservationNotFoundException(request.reservationId()));
+        Reservation reservation = getReservationOrThrow(request.reservationId());
 
-        // Vérifications d'état
-        if (reservation.getStatus() != ReservationStatus.PENDING) {
+        // Utilisation de la logique métier du domaine
+        if (!reservation.canBeConfirmed()) {
+            if (reservation.isExpired()) {
+                throw new ReservationExpiredException(reservation.getId());
+            }
             throw new InvalidReservationStateException(
                 reservation.getId(),
                 reservation.getStatus(),
@@ -128,26 +128,14 @@ public class TicketInventoryService {
             );
         }
 
-        if (reservation.getHoldExpiresAt() != null 
-            && Instant.now().isAfter(reservation.getHoldExpiresAt())) {
-            throw new ReservationExpiredException(reservation.getId());
-        }
-
-        // Mise à jour du statut
-        reservation.setStatus(ReservationStatus.CONFIRMED);
+        // Confirmation via méthode du domaine
+        reservation.confirm();
         reservationRepository.save(reservation);
 
         // Création des tickets
-        Ticket ticket = new Ticket(
-            reservation.getId(),
-            reservation.getUserId(),
-            reservation.getEventId(),
-            reservation.getQuantity()
-        );
-        ticketRepository.save(ticket);
+        createTicketsForReservation(reservation);
 
-        logger.info("Réservation {} confirmée, ticket {} créé", 
-            reservation.getId(), ticket.getId());
+        logger.info("Réservation {} confirmée", reservation.getId());
 
         // TODO: Publier événement ReservationConfirmed pour déclencher le paiement
 
@@ -163,14 +151,12 @@ public class TicketInventoryService {
      */
     @Transactional
     public ReleaseResponse releaseReservation(ReleaseRequest request) {
-        logger.info("Libération de la réservation {}", request.reservationId());
+        logger.debug("Libération de la réservation {}", request.reservationId());
 
-        Reservation reservation = reservationRepository.findById(request.reservationId())
-            .orElseThrow(() -> new ReservationNotFoundException(request.reservationId()));
+        Reservation reservation = getReservationOrThrow(request.reservationId());
 
-        // Vérification que la réservation n'est pas déjà annulée
-        if (reservation.getStatus() == ReservationStatus.CANCELED 
-            || reservation.getStatus() == ReservationStatus.EXPIRED) {
+        // Utilisation de la logique métier du domaine
+        if (!reservation.isActive()) {
             logger.warn("Réservation {} déjà annulée/expirée: {}", 
                 reservation.getId(), reservation.getStatus());
             return new ReleaseResponse(reservation.getStatus().name());
@@ -178,15 +164,11 @@ public class TicketInventoryService {
 
         // Libération du stock si PENDING
         if (reservation.getStatus() == ReservationStatus.PENDING) {
-            Inventory inventory = inventoryRepository.findById(reservation.getEventId())
-                .orElseThrow(() -> new InventoryNotFoundException(reservation.getEventId()));
-            
-            inventory.setReserved(inventory.getReserved() - reservation.getQuantity());
-            inventoryRepository.save(inventory);
+            releaseInventoryStock(reservation);
         }
 
-        // Mise à jour du statut
-        reservation.setStatus(ReservationStatus.CANCELED);
+        // Annulation via méthode du domaine
+        reservation.cancel();
         reservationRepository.save(reservation);
 
         logger.info("Réservation {} annulée", reservation.getId());
@@ -207,8 +189,7 @@ public class TicketInventoryService {
     public AvailabilityResponse getAvailability(Long eventId) {
         logger.debug("Consultation de la disponibilité pour l'événement {}", eventId);
 
-        Inventory inventory = inventoryRepository.findById(eventId)
-            .orElseThrow(() -> new InventoryNotFoundException(eventId));
+        Inventory inventory = getInventoryOrThrow(eventId);
 
         return new AvailabilityResponse(
             eventId,
@@ -230,16 +211,133 @@ public class TicketInventoryService {
         List<Reservation> reservations = reservationRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         List<UserReservationsItem> items = reservations.stream()
-            .map(r -> new UserReservationsItem(
-                r.getId(),
-                r.getEventId(),
-                r.getQuantity(),
-                r.getStatus().name(),
-                r.getCreatedAt(),
-                r.getUpdatedAt()
-            ))
+            .map(this::toUserReservationItem)
             .toList();
 
         return new UserReservationsResponse(items);
+    }
+
+    // ========== MÉTHODES PRIVÉES (Helper Methods) ==========
+
+    /**
+     * Récupère une réservation ou lève une exception.
+     */
+    private Reservation getReservationOrThrow(Long id) {
+        return reservationRepository.findById(id)
+            .orElseThrow(() -> new ReservationNotFoundException(id));
+    }
+
+    /**
+     * Récupère un inventaire ou lève une exception.
+     */
+    private Inventory getInventoryOrThrow(Long eventId) {
+        return inventoryRepository.findById(eventId)
+            .orElseThrow(() -> new InventoryNotFoundException(eventId));
+    }
+
+    /**
+     * Récupère un inventaire avec verrou pessimiste.
+     */
+    private Inventory getInventoryWithLock(Long eventId) {
+        return inventoryRepository.findByIdWithLock(eventId)
+            .orElseThrow(() -> new InventoryNotFoundException(eventId));
+    }
+
+    /**
+     * Valide que le stock est suffisant.
+     */
+    private void validateSufficientStock(Inventory inventory, int requested) {
+        int available = inventory.getAvailable();
+        if (available < requested) {
+            throw new InsufficientStockException(
+                inventory.getEventId(), requested, available
+            );
+        }
+    }
+
+    /**
+     * Décrémente le stock avec vérification défensive.
+     */
+    private void decrementStock(Inventory inventory, int quantity) {
+        int newReserved = inventory.getReserved() + quantity;
+        if (newReserved > inventory.getTotal()) {
+            throw new IllegalStateException(
+                String.format("Reserved count (%d) would exceed total (%d)",
+                    newReserved, inventory.getTotal())
+            );
+        }
+        inventory.setReserved(newReserved);
+    }
+
+    /**
+     * Incrémente le stock (libération) avec vérification défensive.
+     */
+    private void incrementStock(Inventory inventory, int quantity) {
+        int newReserved = inventory.getReserved() - quantity;
+        if (newReserved < 0) {
+            logger.error("Tentative de stock négatif: {} - {} = {}", 
+                inventory.getReserved(), quantity, newReserved);
+            inventory.setReserved(0); // Défensif: empêche les valeurs négatives
+        } else {
+            inventory.setReserved(newReserved);
+        }
+    }
+
+    /**
+     * Libère le stock d'inventaire pour une réservation.
+     */
+    private void releaseInventoryStock(Reservation reservation) {
+        Inventory inventory = getInventoryOrThrow(reservation.getEventId());
+        incrementStock(inventory, reservation.getQuantity());
+        inventoryRepository.save(inventory);
+    }
+
+    /**
+     * Crée les tickets pour une réservation confirmée.
+     */
+    private void createTicketsForReservation(Reservation reservation) {
+        Ticket ticket = new Ticket(
+            reservation.getId(),
+            reservation.getUserId(),
+            reservation.getEventId(),
+            reservation.getQuantity()
+        );
+        ticketRepository.save(ticket);
+        logger.debug("Ticket {} créé pour la réservation {}", ticket.getId(), reservation.getId());
+    }
+
+    /**
+     * Calcule le temps d'expiration d'une réservation.
+     */
+    private Instant calculateExpirationTime() {
+        return Instant.now().plus(
+            properties.getReservationHoldMinutes(), 
+            ChronoUnit.MINUTES
+        );
+    }
+
+    /**
+     * Construit une réponse de réservation.
+     */
+    private ReserveResponse buildReserveResponse(Reservation reservation) {
+        return new ReserveResponse(
+            reservation.getId(),
+            reservation.getStatus().name(),
+            reservation.getHoldExpiresAt()
+        );
+    }
+
+    /**
+     * Convertit une réservation en item de réponse utilisateur.
+     */
+    private UserReservationsItem toUserReservationItem(Reservation r) {
+        return new UserReservationsItem(
+            r.getId(),
+            r.getEventId(),
+            r.getQuantity(),
+            r.getStatus().name(),
+            r.getCreatedAt(),
+            r.getUpdatedAt()
+        );
     }
 }

@@ -46,7 +46,7 @@ public class Inventory {
      */
     @Transient
     public int getAvailable() {
-        return (total != null ? total : 0) - (reserved != null ? reserved : 0);
+        return total - reserved;
     }
 
     @PrePersist

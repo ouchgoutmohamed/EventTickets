@@ -85,8 +85,8 @@ public class ReservationCleanupService {
         inventory.setReserved(inventory.getReserved() - reservation.getQuantity());
         inventoryRepository.save(inventory);
 
-        // Mise à jour du statut
-        reservation.setStatus(ReservationStatus.EXPIRED);
+        // Mise à jour du statut via méthode du domaine
+        reservation.expire();
         reservationRepository.save(reservation);
 
         logger.info("Réservation {} expirée et {} tickets libérés",
