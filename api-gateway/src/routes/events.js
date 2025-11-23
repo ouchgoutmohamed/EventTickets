@@ -17,7 +17,6 @@ router.use(
       '^/events': '/api/events', // Réécrire /events vers /api/events
     },
     onProxyReq: (proxyReq, req, res) => {
-      // Transférer les headers d'authentification si présents
       if (req.headers['x-user-id']) {
         proxyReq.setHeader('x-user-id', req.headers['x-user-id']);
       }
