@@ -1,7 +1,11 @@
 package com.project.eventcatalogservice.services;
 
+import com.project.eventcatalogservice.api.reponses.ArtistResponse;
 import com.project.eventcatalogservice.api.reponses.CategoryResponse;
+import com.project.eventcatalogservice.api.reponses.EventImageResponse;
 import com.project.eventcatalogservice.api.reponses.EventResponse;
+import com.project.eventcatalogservice.api.reponses.TicketTypeResponse;
+import com.project.eventcatalogservice.api.reponses.VenueResponse;
 import com.project.eventcatalogservice.api.requests.CreateEventRequest;
 import com.project.eventcatalogservice.api.requests.UpdateEventRequest;
 import com.project.eventcatalogservice.domains.entities.Event;
@@ -17,7 +21,20 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.project.eventcatalogservice.domains.entities.Artist;
+import com.project.eventcatalogservice.domains.entities.EventImage;
+import com.project.eventcatalogservice.domains.entities.TicketType;
+import com.project.eventcatalogservice.api.requests.CreateArtistRequest;
+import com.project.eventcatalogservice.api.requests.CreateEventImageRequest;
+import com.project.eventcatalogservice.api.requests.CreateTicketTypeRequest;
+import com.project.eventcatalogservice.repositories.ArtistRepository;
+import com.project.eventcatalogservice.repositories.EventImageRepository;
+import com.project.eventcatalogservice.repositories.TicketTypeRepository;
+import com.project.eventcatalogservice.repositories.CategoryRepository;
 
+
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,49 +46,95 @@ public class EventService {
     private final EventRepository eventRepository;
     private final OrganizerRepository organizerRepository;
     private final VenueRepository venueRepository;
+    private final ArtistRepository artistRepository;
+    private final EventImageRepository eventImageRepository;
+    private final TicketTypeRepository ticketTypeRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
      * Créer un événement (status = DRAFT par défaut)
      */
     @Transactional
-    public EventResponse createEvent(CreateEventRequest request, CustomUserDetails currentUser) {
+public EventResponse createEvent(CreateEventRequest request, CustomUserDetails currentUser) {
 
-        // 1. Vérifier que l'utilisateur a le rôle ORGANIZER ou ADMIN
-        if (!hasOrganizerRole(currentUser)) {
-            throw new SecurityException("Only organizers can create events");
-        }
-
-        // 2. Récupérer ou créer l'organizer associé à cet utilisateur
-        Organizer organizer = organizerRepository.findByUserId(currentUser.getUserId())
-                .orElseGet(() -> {
-                    Organizer org = new Organizer();
-                    org.setUserId(currentUser.getUserId());
-                    org.setEmail(currentUser.getEmail());
-                    return organizerRepository.save(org);
-                });
-
-        // 3. Récupérer le venue
-        Venue venue = venueRepository.findById(request.venueId())
-                .orElseThrow(() -> new EntityNotFoundException("Venue not found with id: " + request.venueId()));
-
-        // 4. Créer l'événement
-        Event event = new Event();
-        event.setTitle(request.title());
-        event.setDescription(request.description());
-        event.setDate(request.date());
-        event.setStartTime(request.startTime());
-        event.setEndTime(request.endTime());
-        event.setStatus(request.status() != null ? request.status() : EventStatus.DRAFT);
-        event.setCategory(request.category());
-        event.setVenue(venue);
-        event.setOrganizer(organizer);
-        event.setDeleted(false);
-
-        eventRepository.save(event);
-
-        // 5. Retourner la réponse
-        return mapToResponse(event);
+    // 1. Vérifier rôle
+    if (!hasOrganizerRole(currentUser)) {
+        throw new SecurityException("Only organizers can create events");
     }
+
+    // 2. Récupérer / créer organizer
+    Organizer organizer = organizerRepository.findByUserId(currentUser.getUserId())
+            .orElseGet(() -> {
+                Organizer org = new Organizer();
+                org.setUserId(currentUser.getUserId());
+                org.setEmail(currentUser.getEmail());
+                return organizerRepository.save(org);
+            });
+
+    // 3. Créer le Venue
+    Venue venue = new Venue();
+    venue.setName(request.venue().name());
+    venue.setAddress(request.venue().address());
+    venue.setCity(request.venue().city());
+    venue.setCapacity(request.venue().capacity());
+    venue = venueRepository.save(venue);
+
+    // 4. Créer l'événement
+    Event event = new Event();
+    event.setTitle(request.title());
+    event.setDescription(request.description());
+    event.setDate(request.date());
+    event.setStartTime(request.startTime());
+    event.setEndTime(request.endTime());
+    event.setStatus(request.status() != null ? request.status() : EventStatus.DRAFT);
+    event.setCategory(request.category());
+    event.setVenue(venue);
+    event.setOrganizer(organizer);
+    event.setDeleted(false);
+
+    event.setArtists(new ArrayList<>());
+    event.setTicketTypes(new ArrayList<>());
+    event.setImages(new ArrayList<>());
+
+    // 5. Créer / ajouter artistes
+    if (request.artists() != null) {
+        for (CreateArtistRequest artistReq : request.artists()) {
+            Artist artist = new Artist();
+            artist.setName(artistReq.name());
+            artist.setGenre(artistReq.genre());
+            artist.setCountry(artistReq.country());
+            artist = artistRepository.save(artist);
+            event.getArtists().add(artist);
+        }
+    }
+
+    // 6. Créer tickets
+    if (request.ticketTypes() != null) {
+        for (CreateTicketTypeRequest t : request.ticketTypes()) {
+            TicketType ticket = new TicketType();
+            ticket.setTicketName(t.name());
+            ticket.setPrice(t.price());
+            ticket.setQuantity(t.quantity());
+            ticket.setEvent(event);
+            event.getTicketTypes().add(ticket);
+        }
+    }
+
+    // 7. Créer images
+    if (request.images() != null) {
+        for (CreateEventImageRequest imgReq : request.images()) {
+            EventImage img = new EventImage();
+            img.setUrl(imgReq.url());
+            img.setEvent(event);
+            event.getImages().add(img);
+        }
+    }
+
+    // 8. Sauvegarder event
+    eventRepository.save(event);
+
+    return mapToResponse(event);
+}
 
     /**
      * Mettre à jour un événement (uniquement si propriétaire ou admin)
@@ -246,26 +309,64 @@ public class EventService {
     /**
      * Mapper Event → EventResponse
      */
-    private EventResponse mapToResponse(Event e) {
-        CategoryResponse categoryResponse = null;
-        if (e.getCategory() != null) {
-            categoryResponse = new CategoryResponse(e.getCategory());
-        }
+  private EventResponse mapToResponse(Event e) {
+    // 1. Catégorie
+   
+    CategoryResponse categoryResponse = null; 
+    if (e.getCategory() != null) 
+        { categoryResponse = new CategoryResponse(e.getCategory()); }
 
-        return new EventResponse(
-                e.getId(),
-                e.getTitle(),
-                e.getDescription(),
-                e.getDate(),
-                e.getStartTime(),
-                e.getEndTime(),
-                e.getStatus().name(),
-                categoryResponse,
-                e.getOrganizer() != null ? e.getOrganizer().getId() : null,
-                e.getVenue() != null ? e.getVenue().getId() : null,
-                null, // ticket types → à compléter
-                null, // images → à compléter
-                e.isDeleted()
+    // 2. Venue
+    VenueResponse venueResponse = null;
+    if (e.getVenue() != null) {
+        venueResponse = new VenueResponse(
+            e.getVenue().getId(),
+            e.getVenue().getName(),
+            e.getVenue().getAddress(),
+            e.getVenue().getCity(),
+            e.getVenue().getCapacity()
         );
     }
+
+    // 3. Tickets
+    List<TicketTypeResponse> ticketResponses = e.getTicketTypes() != null
+        ? e.getTicketTypes().stream()
+            .map(t -> new TicketTypeResponse(t.getId(), t.getTicketName(), t.getPrice(), t.getQuantity()))
+            .toList()
+        : new ArrayList<>();
+
+    // 4. Images
+    List<EventImageResponse> imageResponses = e.getImages() != null
+        ? e.getImages().stream()
+            .map(img -> new EventImageResponse(img.getId(), img.getUrl()))
+            .toList()
+        : new ArrayList<>();
+
+    // 5. Artists
+    List<ArtistResponse> artistResponses = e.getArtists() != null
+        ? e.getArtists().stream()
+            .map(a -> new ArtistResponse(a.getId(), a.getName(), a.getGenre()))
+            .toList()
+        : new ArrayList<>();
+
+    // 6. Construire la réponse
+    return new EventResponse(
+        e.getId(),
+        e.getTitle(),
+        e.getDescription(),
+        e.getDate(),
+        e.getStartTime(),
+        e.getEndTime(),
+        e.getStatus().name(),
+        categoryResponse,
+        e.getOrganizer() != null ? e.getOrganizer().getId() : null,
+        venueResponse,
+        ticketResponses,
+        imageResponses,
+        artistResponses,
+        e.isDeleted()
+    );
+}
+
+
 }

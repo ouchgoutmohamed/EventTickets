@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // User Service base URL - update this with your actual API Gateway URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4001/api';
+const API_BASE_URL_EVENT_CATALOG_SERVICE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/events';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

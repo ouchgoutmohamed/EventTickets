@@ -1,5 +1,6 @@
 package com.project.eventcatalogservice.api.reponses;
 
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -14,9 +15,11 @@ public record EventResponse(
         String status,
         CategoryResponse category,
         Long organizerId,
-        Long venueId,
+        VenueResponse venue, 
         List<TicketTypeResponse> tickets,
         List<EventImageResponse> images,
+        List<ArtistResponse> artists,
         boolean deleted
 ) {}
+
 

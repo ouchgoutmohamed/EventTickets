@@ -1,0 +1,293 @@
+{
+  "EventController": {
+    "createEvent": {
+      "endpoint": "POST /events/create",
+      "description": "Create a new event (initial status = DRAFT)",
+      "requestBody": {
+        "title": "Summer Music Festival 2023",
+        "description": "A three-day music festival featuring top artists from around the world",
+        "date": "2023-07-15",
+        "startTime": "2023-07-15T14:00:00",
+        "endTime": "2023-07-17T23:00:00",
+        "status": "DRAFT",
+        "category": "MUSIC",
+        "venueId": 1,
+        "artistIds": [1, 2, 3],
+        "ticketTypes": [
+          {
+            "name": "General Admission",
+            "price": 150.00,
+            "quantity": 5000
+          },
+          {
+            "name": "VIP",
+            "price": 300.00,
+            "quantity": 500
+          }
+        ],
+        "images": [
+          {
+            "url": "https://example.com/images/summer-fest-1.jpg"
+          },
+          {
+            "url": "https://example.com/images/summer-fest-2.jpg"
+          }
+        ]
+      }
+    },
+    "updateEvent": {
+      "endpoint": "PUT /events/{id}",
+      "description": "Update an existing event (only if owner)",
+      "requestBody": {
+        "title": "Updated Summer Music Festival 2023",
+        "description": "An updated description for the three-day music festival",
+        "date": "2023-07-20",
+        "startTime": "2023-07-20T15:00:00",
+        "endTime": "2023-07-22T23:00:00",
+        "status": "PUBLISHED",
+        "categoryId": 1,
+        "organizerId": 1,
+        "venueId": 2
+      }
+    },
+    "updateEventStatus": {
+      "endpoint": "PATCH /events/{id}/status",
+      "description": "Update event status (DRAFT → PUBLISHED or other)",
+      "requestParam": "status=PUBLISHED"
+    },
+    "deleteEvent": {
+      "endpoint": "DELETE /events/{id}",
+      "description": "Soft delete an event (only if owner)",
+      "noRequestBody": true
+    },
+    "getEvent": {
+      "endpoint": "GET /events/{id}",
+      "description": "Get event by ID",
+      "noRequestBody": true
+    },
+    "getAllEvents": {
+      "endpoint": "GET /events",
+      "description": "Get all non-deleted events",
+      "noRequestBody": true
+    },
+    "getEventsByCategory": {
+      "endpoint": "GET /events/category/{category}",
+      "description": "Filter events by category",
+      "pathVariable": "MUSIC",
+      "noRequestBody": true
+    },
+    "getEventsByStatus": {
+      "endpoint": "GET /events/status/{status}",
+      "description": "Filter events by status",
+      "pathVariable": "PUBLISHED",
+      "noRequestBody": true
+    },
+    "getEventsByOrganizer": {
+      "endpoint": "GET /events/organizer/{organizerId}",
+      "description": "Filter events by organizer",
+      "pathVariable": "1",
+      "noRequestBody": true
+    },
+    "searchEvents": {
+      "endpoint": "GET /events/search?keyword=festival",
+      "description": "Search events by keyword in title/description",
+      "noRequestBody": true
+    },
+    "getEventsBetweenDates": {
+      "endpoint": "GET /events/date?start=2023-07-01&end=2023-07-31",
+      "description": "Filter events between two dates",
+      "noRequestBody": true
+    }
+  },
+  "CategoryController": {
+    "getAllCategories": {
+      "endpoint": "GET /categories",
+      "description": "Get all category types",
+      "noRequestBody": true
+    }
+  },
+  "OrganizerController": {
+    "getOrganizerById": {
+      "endpoint": "GET /organizers/{id}",
+      "description": "Get organizer by ID",
+      "noRequestBody": true
+    },
+    "createOrganizer": {
+      "endpoint": "POST /organizers",
+      "description": "Create a new organizer",
+      "requestBody": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+33612345678"
+      }
+    },
+    "updateOrganizer": {
+      "endpoint": "PUT /organizers/{id}",
+      "description": "Update an existing organizer",
+      "requestBody": {
+        "firstName": "John",
+        "lastName": "Smith",
+        "email": "john.smith@example.com",
+        "phone": "+33612345679"
+      }
+    },
+    "deleteOrganizer": {
+      "endpoint": "DELETE /organizers/{id}",
+      "description": "Delete an organizer",
+      "noRequestBody": true
+    }
+  },
+  "VenueController": {
+    "getAllVenues": {
+      "endpoint": "GET /venues",
+      "description": "Get all venues",
+      "noRequestBody": true
+    },
+    "getVenueById": {
+      "endpoint": "GET /venues/{id}",
+      "description": "Get venue by ID",
+      "noRequestBody": true
+    },
+    "createVenue": {
+      "endpoint": "POST /venues",
+      "description": "Create a new venue",
+      "requestBody": {
+        "name": "Stade de France",
+        "address": "93216 Saint-Denis",
+        "city": "Paris",
+        "capacity": 80000
+      }
+    },
+    "updateVenue": {
+      "endpoint": "PUT /venues/{id}",
+      "description": "Update an existing venue",
+      "requestBody": {
+        "name": "Stade de France",
+        "address": "93216 Saint-Denis",
+        "city": "Paris",
+        "capacity": 81000
+      }
+    },
+    "deleteVenue": {
+      "endpoint": "DELETE /venues/{id}",
+      "description": "Delete a venue",
+      "noRequestBody": true
+    }
+  },
+  "TicketTypeController": {
+    "getAllTicketTypes": {
+      "endpoint": "GET /ticket-types",
+      "description": "Get all ticket types",
+      "noRequestBody": true
+    },
+    "getTicketTypeById": {
+      "endpoint": "GET /ticket-types/{id}",
+      "description": "Get ticket type by ID",
+      "noRequestBody": true
+    },
+    "createTicketType": {
+      "endpoint": "POST /ticket-types",
+      "description": "Create a new ticket type",
+      "requestBody": {
+        "ticketName": "Premium",
+        "price": 200.00,
+        "quantity": 1000,
+        "event": {
+          "id": 1
+        }
+      }
+    },
+    "updateTicketType": {
+      "endpoint": "PUT /ticket-types/{id}",
+      "description": "Update an existing ticket type",
+      "requestBody": {
+        "ticketName": "Premium Plus",
+        "price": 250.00,
+        "quantity": 800,
+        "event": {
+          "id": 1
+        }
+      }
+    },
+    "deleteTicketType": {
+      "endpoint": "DELETE /ticket-types/{id}",
+      "description": "Delete a ticket type",
+      "noRequestBody": true
+    }
+  },
+  "ArtistController": {
+    "getAllArtists": {
+      "endpoint": "GET /artists",
+      "description": "Get all artists",
+      "noRequestBody": true
+    },
+    "getArtistById": {
+      "endpoint": "GET /artists/{id}",
+      "description": "Get artist by ID",
+      "noRequestBody": true
+    },
+    "createArtist": {
+      "endpoint": "POST /artists",
+      "description": "Create a new artist",
+      "requestBody": {
+        "name": "David Guetta",
+        "genre": "Electronic",
+        "country": "France"
+      }
+    },
+    "updateArtist": {
+      "endpoint": "PUT /artists/{id}",
+      "description": "Update an existing artist",
+      "requestBody": {
+        "name": "David Guetta",
+        "genre": "EDM",
+        "country": "France"
+      }
+    },
+    "deleteArtist": {
+      "endpoint": "DELETE /artists/{id}",
+      "description": "Delete an artist",
+      "noRequestBody": true
+    }
+  },
+  "EventImageController": {
+    "getAllEventImages": {
+      "endpoint": "GET /event-images",
+      "description": "Get all event images",
+      "noRequestBody": true
+    },
+    "getEventImageById": {
+      "endpoint": "GET /event-images/{id}",
+      "description": "Get event image by ID",
+      "noRequestBody": true
+    },
+    "createEventImage": {
+      "endpoint": "POST /event-images",
+      "description": "Create a new event image",
+      "requestBody": {
+        "url": "https://example.com/images/event-1.jpg",
+        "altText": "Event promotional image",
+        "event": {
+          "id": 1
+        }
+      }
+    },
+    "updateEventImage": {
+      "endpoint": "PUT /event-images/{id}",
+      "description": "Update an existing event image",
+      "requestBody": {
+        "url": "https://example.com/images/event-1-updated.jpg",
+        "altText": "Updated event promotional image",
+        "event": {
+          "id": 1
+        }
+      }
+    },
+    "deleteEventImage": {
+      "endpoint": "DELETE /event-images/{id}",
+      "description": "Delete an event image",
+      "noRequestBody": true
+    }
+  }
+}

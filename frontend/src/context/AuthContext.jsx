@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import authService from '../api/authService';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import authService from "../api/authService";
 
 const AuthContext = createContext(null);
 
@@ -8,12 +8,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+      }
+    } catch (err) {
+      console.error("Failed to parse user from localStorage:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
@@ -36,19 +41,19 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const isAdmin = () => {
-    return user?.role?.nom === 'administrateur';
+    return user?.role?.nom === "administrateur";
   };
 
   const isOrganizator = () => {
-    return user?.role?.nom === 'organisateur';
+    return user?.role?.nom === "organisateur";
   };
 
   const isClient = () => {
-    return user?.role?.nom === 'client';
+    return user?.role?.nom === "client";
   };
 
   const value = {
@@ -70,7 +75,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

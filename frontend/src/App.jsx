@@ -6,21 +6,21 @@ import { ToastProvider } from './context/ToastContext';
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import RoleBasedRedirect from './components/RoleBasedRedirect';
 
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Home from './pages/Home';
 import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
 import UserDetail from './pages/UserDetail';
 import RoleManagement from './pages/RoleManagement';
 import CreateOrganizer from './pages/CreateOrganizer';
+import Events from './organizer/events';
+import Home from './pages/HomePage';
 
 // Styles
-import './App.css';
+import './index.css';
 
 function App() {
   return (
@@ -30,25 +30,18 @@ function App() {
           <div className="app">
             <Layout>
               <Routes>
-                {/* Public Routes */}
+
+                {/* -------------------- PUBLIC ROUTES -------------------- */}
+                <Route path="/home" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
-                {/* Protected Routes */}
+                {/* -------------------- PROTECTED ROUTES -------------------- */}
                 <Route
                   path="/dashboard"
                   element={
                     <ProtectedRoute>
                       <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/home"
-                  element={
-                    <ProtectedRoute>
-                      <Home />
                     </ProtectedRoute>
                   }
                 />
@@ -62,7 +55,7 @@ function App() {
                   }
                 />
 
-                {/* Admin Routes */}
+                {/* -------------------- ADMIN ROUTES -------------------- */}
                 <Route
                   path="/admin/users"
                   element={
@@ -99,15 +92,12 @@ function App() {
                   }
                 />
 
-                {/* Placeholder routes for other services */}
+                {/* -------------------- OTHER PROTECTED SERVICES -------------------- */}
                 <Route
                   path="/events"
                   element={
                     <ProtectedRoute>
-                      <div className="placeholder-page">
-                        <h1>Événements</h1>
-                        <p>Page en construction - Event Catalog Service</p>
-                      </div>
+                      <Events />
                     </ProtectedRoute>
                   }
                 />
@@ -124,19 +114,19 @@ function App() {
                   }
                 />
 
-                {/* Default Route */}
-                <Route path="/" element={<RoleBasedRedirect />} />
-                
-                {/* 404 Route */}
+                {/* -------------------- DEFAULT ROUTE → HOME -------------------- */}
+                <Route path="/" element={<Navigate to="/home" replace />} />
+
+                {/* -------------------- 404 ROUTE -------------------- */}
                 <Route 
-                  path="*" 
+                  path="*"
                   element={
                     <div className="not-found-page">
                       <h1>404</h1>
                       <p>Page non trouvée</p>
                       <a href="/dashboard">Retour au tableau de bord</a>
                     </div>
-                  } 
+                  }
                 />
               </Routes>
             </Layout>

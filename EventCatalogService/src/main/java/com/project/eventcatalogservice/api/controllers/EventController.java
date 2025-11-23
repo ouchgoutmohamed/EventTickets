@@ -85,7 +85,7 @@ public class EventController {
     /**
      * Récupérer tous les événements (public)
      */
-    @GetMapping
+    @GetMapping("/list-events")
     public ResponseEntity<List<EventResponse>> getAllEvents() {
         List<EventResponse> events = eventService.getAllEvents();
         return ResponseEntity.ok(events);
