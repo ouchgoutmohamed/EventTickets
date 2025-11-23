@@ -79,4 +79,47 @@ public class Reservation {
         this.updatedAt = Instant.now();
     }
 
+    // ========= Méthodes de domaine utilisées par les services =========
+
+   
+    public boolean isActive() {
+        return this.status == ReservationStatus.PENDING || this.status == ReservationStatus.CONFIRMED;
+    }
+
+    /**
+     * Indique si la réservation est expirée en fonction de sa date d'expiration.
+     */
+    public boolean isExpired() {
+        return this.holdExpiresAt != null && Instant.now().isAfter(this.holdExpiresAt);
+    }
+
+    /**
+     * Vérifie si la réservation peut être confirmée.
+     * Elle doit être en statut PENDING et ne pas être expirée.
+     */
+    public boolean canBeConfirmed() {
+        return this.status == ReservationStatus.PENDING && !isExpired();
+    }
+
+    /**
+     * Confirme la réservation.
+     */
+    public void confirm() {
+        this.status = ReservationStatus.CONFIRMED;
+    }
+
+    /**
+     * Annule la réservation.
+     */
+    public void cancel() {
+        this.status = ReservationStatus.CANCELED;
+    }
+
+    /**
+     * Marque la réservation comme expirée.
+     */
+    public void expire() {
+        this.status = ReservationStatus.EXPIRED;
+    }
+
 }
