@@ -36,7 +36,9 @@ ticketInventoryAxios.interceptors.response.use(
   async (error) => {
     console.error('[Ticket Inventory API Response Error]', error.response?.status, error.response?.data || error.message);
     
-    // If 401, redirect to login (token refresh is handled by main axios instance)
+    // If 401, force logout and redirect to login
+    // Note: Using window.location for hard redirect on authentication failure
+    // This ensures all auth state is cleared across the app
     if (error.response?.status === 401) {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');

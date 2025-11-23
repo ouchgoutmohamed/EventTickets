@@ -13,7 +13,10 @@ const TicketInventory = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
   
-  const [eventId, setEventId] = useState(1);
+  // Configuration - can be moved to env variables if needed
+  const MAX_TICKETS_PER_RESERVATION = 10;
+  
+  const [eventId, setEventId] = useState('');
   const [availability, setAvailability] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -69,7 +72,8 @@ const TicketInventory = () => {
 
     try {
       setLoading(true);
-      const idempotencyKey = `${user.id}-${eventId}-${Date.now()}`;
+      // Generate unique idempotency key using timestamp and random value
+      const idempotencyKey = `${user.id}-${eventId}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const response = await ticketInventoryService.reserveTickets(
         eventId,
         user.id,
@@ -193,13 +197,13 @@ const TicketInventory = () => {
                 {availability.available > 0 && user ? (
                   <>
                     <Form.Group className="mb-3">
-                      <Form.Label>Quantité à réserver (max: 10)</Form.Label>
+                      <Form.Label>Quantité à réserver (max: {MAX_TICKETS_PER_RESERVATION})</Form.Label>
                       <Form.Control
                         type="number"
                         value={quantity}
                         onChange={(e) => setQuantity(parseInt(e.target.value))}
                         min="1"
-                        max={Math.min(10, availability.available)}
+                        max={Math.min(MAX_TICKETS_PER_RESERVATION, availability.available)}
                       />
                     </Form.Group>
 
