@@ -12,11 +12,9 @@ import com.acme.tickets.dto.*;
 import com.acme.tickets.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.OptimisticLockException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -57,7 +55,6 @@ public class TicketInventoryService {
      * @throws InsufficientStockException Si le stock est insuffisant
      */
     @Transactional
-    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3)
     public ReserveResponse reserveTickets(ReserveRequest request, String idempotencyKey) {
         logger.debug("Réservation de {} tickets pour l'événement {} par l'utilisateur {}",
             request.quantity(), request.eventId(), request.userId());
