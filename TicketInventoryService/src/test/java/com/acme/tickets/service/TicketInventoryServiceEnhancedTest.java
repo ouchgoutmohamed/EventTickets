@@ -503,6 +503,8 @@ class TicketInventoryServiceEnhancedTest {
     }
 
     // Helper method to create mock reservations with ID
+    // Note: Uses reflection to set the ID field since JPA manages this field normally.
+    // This is acceptable in tests to simulate persisted entities without database round-trips.
     private Reservation createMockReservation(Long eventId, Long userId, int quantity, Long id) {
         Reservation reservation = new Reservation(eventId, userId, quantity, ReservationStatus.PENDING);
         reservation.setHoldExpiresAt(Instant.now().plusSeconds(900));

@@ -132,6 +132,9 @@ class ReservationCleanupServiceTest {
         verify(inventoryRepository).save(any(Inventory.class)); // Only for res1
     }
 
+    // Helper method to create mock reservations with ID
+    // Note: Uses reflection to set the ID field since JPA manages this field normally.
+    // This is acceptable in tests to simulate persisted entities without database round-trips.
     private Reservation createReservation(Long id, Long eventId, Long userId, int quantity) {
         Reservation reservation = new Reservation(eventId, userId, quantity, ReservationStatus.PENDING);
         reservation.setHoldExpiresAt(Instant.now().minusSeconds(1)); // Expired
