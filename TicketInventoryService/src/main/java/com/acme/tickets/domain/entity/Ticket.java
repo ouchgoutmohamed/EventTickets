@@ -3,6 +3,11 @@ package com.acme.tickets.domain.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entité représentant un ticket émis suite à une réservation confirmée.
@@ -16,6 +21,11 @@ import java.util.Objects;
         @Index(name = "idx_ticket_event_id", columnList = "event_id")
     }
 )
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Getter
+@Setter
 public class Ticket {
 
     @Id
@@ -38,10 +48,6 @@ public class Ticket {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected Ticket() {
-        // Constructeur requis par JPA
-    }
-
     public Ticket(Long reservationId, Long userId, Long eventId, Integer quantity) {
         this.reservationId = reservationId;
         this.userId = userId;
@@ -55,58 +61,4 @@ public class Ticket {
         this.createdAt = Instant.now();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Ticket)) return false;
-        Ticket ticket = (Ticket) o;
-        return id != null && Objects.equals(id, ticket.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    // Getters et Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
 }

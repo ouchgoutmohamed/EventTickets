@@ -3,13 +3,20 @@ package com.acme.tickets.domain.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Entité représentant l'inventaire des tickets pour un événement.
- * Gère le stock total et le nombre de tickets réservés avec verrouillage optimiste.
- */
+
 @Entity
 @Table(name = "inventory")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Getter
+@Setter
 public class Inventory {
 
     @Id
@@ -29,24 +36,13 @@ public class Inventory {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    protected Inventory() {
-        // Constructeur requis par JPA
-    }
-
-    public Inventory(Long eventId, Integer total) {
-        this.eventId = eventId;
-        this.total = total;
-        this.reserved = 0;
-        this.updatedAt = Instant.now();
-    }
-
     /**
      * Calcule le nombre de tickets disponibles (non réservés).
      * @return total - reserved
      */
     @Transient
     public int getAvailable() {
-        return total - reserved;
+        return (total != null ? total : 0) - (reserved != null ? reserved : 0);
     }
 
     @PrePersist
@@ -55,50 +51,10 @@ public class Inventory {
         this.updatedAt = Instant.now();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Inventory)) return false;
-        Inventory inventory = (Inventory) o;
-        return Objects.equals(eventId, inventory.eventId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(eventId);
-    }
-
-    // Getters et Setters
-
-    public Long getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Long eventId) {
+    public Inventory(Long eventId, Integer total) {
         this.eventId = eventId;
-    }
-
-    public Integer getTotal() {
-        return total;
-    }
-
-    public void setTotal(Integer total) {
         this.total = total;
-    }
-
-    public Integer getReserved() {
-        return reserved;
-    }
-
-    public void setReserved(Integer reserved) {
-        this.reserved = reserved;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
+        this.reserved = 0;
+        this.updatedAt = Instant.now();
     }
 }
