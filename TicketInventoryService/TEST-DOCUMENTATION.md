@@ -121,6 +121,19 @@ Validation des schémas de réponse API:
 - `shouldReturn400ForInvalidInput` - Validation d'entrée avec erreur 400
 - `shouldRequireCorrectContentType` - Validation Content-Type correct
 
+### 5. Tests d'Intégration Inter-Services
+
+#### InterServiceIntegrationTest (7 tests nouveaux)
+Tests simulant la communication avec EventCatalogService, PaymentService, et API Gateway:
+
+- `shouldIntegrateWithEventCatalogService` - Validation d'existence d'événement via EventCatalogService
+- `shouldHandleEventNotFoundFromCatalog` - Gestion événement non trouvé
+- `shouldIntegrateWithPaymentService` - Déclenchement de paiement après confirmation
+- `shouldHandlePaymentWorkflow` - Workflow complet de paiement
+- `shouldIntegrateWithApiGateway` - Requêtes transmises via API Gateway
+- `shouldSupportCompleteWorkflowThroughServices` - Workflow complet à travers tous les services
+- `shouldHandleDependentServiceFailures` - Gestion des échecs de services dépendants
+
 ## Couverture des Tests
 
 ### Fonctionnalités Testées
@@ -200,13 +213,14 @@ spring.task.scheduling.enabled=false
 
 ## Métriques
 
-- **Total de tests**: 70
+- **Total de tests**: 77
 - **Tests unitaires**: 35
-- **Tests d'intégration**: 26
+- **Tests d'intégration**: 33 (26 + 7 inter-service)
 - **Tests de bout en bout**: 8
 - **Tests de contrat**: 10
 - **Taux de réussite**: 100%
 - **Couverture des cas limites**: Complète
+- **Temps d'exécution**: ~12 secondes
 
 ## Intégration Continue
 
@@ -218,10 +232,14 @@ Ces tests sont conçus pour être exécutés dans une pipeline CI/CD:
 
 ## Prochaines Étapes
 
-### Tests d'Intégration Inter-Services (À implémenter)
-- [ ] Intégration avec EventCatalogService (vérification d'existence des événements)
-- [ ] Intégration avec PaymentService (déclenchement de paiement après confirmation)
-- [ ] Intégration avec API Gateway (flux end-to-end avec authentification JWT)
+### Tests d'Intégration Inter-Services (Implémentés - À améliorer)
+- [x] Tests de base avec EventCatalogService (mocked)
+- [x] Tests de base avec PaymentService (mocked)
+- [x] Tests de base avec API Gateway (simulated)
+- [ ] Implémenter REST clients réels (Feign ou RestTemplate)
+- [ ] Utiliser WireMock pour des mocks plus réalistes
+- [ ] Ajouter tests de résilience (Circuit Breaker, Retry)
+- [ ] Tester communication asynchrone via message broker
 
 ### Tests de Performance (À implémenter)
 - [ ] Tests de charge avec JMeter ou Gatling
