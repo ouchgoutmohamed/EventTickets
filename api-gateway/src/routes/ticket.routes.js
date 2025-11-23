@@ -12,11 +12,13 @@ const router = express.Router();
 router.use('/', createProxyMiddleware({
   target: config.services.ticketInventoryService,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/tickets': '/tickets',
+  pathRewrite: function (path, req) {
+    const newPath = '/tickets' + path;
+    console.log(`[PathRewrite] ${path} -> ${newPath}`);
+    return newPath;
   },
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`[Proxy] ${req.method} /api/tickets${req.url} -> ${config.services.ticketInventoryService}/tickets${req.url}`);
+    console.log(`[Proxy] ${req.method} ${req.url} -> ${config.services.ticketInventoryService}${proxyReq.path}`);
     
     // Forward the Authorization header to the backend service
     if (req.headers.authorization) {

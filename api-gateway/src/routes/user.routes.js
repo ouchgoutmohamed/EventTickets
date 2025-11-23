@@ -13,11 +13,13 @@ const router = express.Router();
 router.use('/auth', createProxyMiddleware({
   target: config.services.userService,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/auth': '/api/auth',
+  pathRewrite: function (path, req) {
+    const newPath = '/api/auth' + path;
+    console.log(`[PathRewrite Auth] baseUrl=${req.baseUrl}, path=${path} -> ${newPath}`);
+    return newPath;
   },
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`[Proxy] ${req.method} /api/auth${req.url} -> ${config.services.userService}/api/auth${req.url}`);
+    console.log(`[Proxy] ${req.method} ${req.originalUrl} -> ${config.services.userService}${proxyReq.path}`);
   },
   onError: (err, req, res) => {
     console.error('[Proxy Error - User Service]', err.message);
@@ -33,11 +35,13 @@ router.use('/auth', createProxyMiddleware({
 router.use('/users', createProxyMiddleware({
   target: config.services.userService,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/users': '/api/users',
+  pathRewrite: function (path, req) {
+    const newPath = '/api/users' + path;
+    console.log(`[PathRewrite Users] baseUrl=${req.baseUrl}, path=${path} -> ${newPath}`);
+    return newPath;
   },
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`[Proxy] ${req.method} /api/users${req.url} -> ${config.services.userService}/api/users${req.url}`);
+    console.log(`[Proxy] ${req.method} ${req.originalUrl} -> ${config.services.userService}${proxyReq.path}`);
   },
   onError: (err, req, res) => {
     console.error('[Proxy Error - User Service]', err.message);
@@ -53,11 +57,16 @@ router.use('/users', createProxyMiddleware({
 router.use('/roles', createProxyMiddleware({
   target: config.services.userService,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/roles': '/api/roles',
+  pathRewrite: function (path, req) {
+    // req.baseUrl is /api when coming through the /api mounting
+    // path is / after /roles is stripped
+    // We need to reconstruct /api/roles + remaining path
+    const newPath = '/api/roles' + path;
+    console.log(`[PathRewrite Roles] baseUrl=${req.baseUrl}, path=${path} -> ${newPath}`);
+    return newPath;
   },
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`[Proxy] ${req.method} /api/roles${req.url} -> ${config.services.userService}/api/roles${req.url}`);
+    console.log(`[Proxy] ${req.method} ${req.originalUrl} -> ${config.services.userService}${proxyReq.path}`);
   },
   onError: (err, req, res) => {
     console.error('[Proxy Error - User Service]', err.message);
