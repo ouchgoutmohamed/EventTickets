@@ -11,13 +11,16 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'user_id', // To link payment to the customer.
+        'transaction_id', // Unique ID for tracking (UUID).
+        'amount', // How much the user pays.
+        'currency', // Always store currency (USD, MAD…), even if always same.
+        'status', // PENDING, SUCCESS, FAILED, REFUNDED.
+        'method', // Payment method: card, paypal, bank_transfer…
+        'reason', // Why it failed or was refunded.
+        'provider', // Ex: stripe, paypal, cash_on_delivery. Useful later.
         'event_id',
         'ticket_id',
-        'amount',
-        'status',
-        'method',
-        'transaction_id',
     ];
 
     /**

@@ -16,8 +16,9 @@ import UserManagement from './pages/UserManagement';
 import UserDetail from './pages/UserDetail';
 import RoleManagement from './pages/RoleManagement';
 import CreateOrganizer from './pages/CreateOrganizer';
-import Events from './organizer/events';
-import Home from './pages/HomePage';
+
+import TicketInventory from './pages/TicketInventory';
+
 
 // Styles
 import './index.css';
@@ -106,10 +107,7 @@ function App() {
                   path="/tickets"
                   element={
                     <ProtectedRoute>
-                      <div className="placeholder-page">
-                        <h1>Mes Billets</h1>
-                        <p>Page en construction - Ticket Inventory Service</p>
-                      </div>
+                      <TicketInventory />
                     </ProtectedRoute>
                   }
                 />

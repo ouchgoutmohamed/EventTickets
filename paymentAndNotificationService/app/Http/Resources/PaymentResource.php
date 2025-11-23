@@ -17,13 +17,17 @@ class PaymentResource extends JsonResource
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'amount' => $this->amount,
-            'method' => $this->method,
-            'status' => $this->status,
+            'transaction_id' => $this->transaction_id,
             'user_id' => $this->user_id,
             'event_id' => $this->event_id,
             'ticket_id' => $this->ticket_id,
-            'transaction_id' => $this->transaction_id,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'status' => $this->status,
+            'method' => $this->method,
+            'reason' => $this->reason,
+            'provider' => $this->provider,
+            'created_at' => $this->created_at
         ];
     }
 }

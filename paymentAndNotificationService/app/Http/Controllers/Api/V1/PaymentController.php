@@ -3,54 +3,49 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePaymentRequest;
+use App\Http\Requests\PaymentRequest;
 use App\Http\Resources\PaymentResource;
+use App\Services\PaymentService;
+use App\Services\NotificationService;
 use App\Models\Payment;
-use App\PaymentStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
+    public function __construct(
+        protected PaymentService $paymentService,
+        protected NotificationService $notificationService
+    ) {
+    }
 
-    public function index(Request $request)
+    public function execute(PaymentRequest $request)
     {
-        $query = Payment::query();
+        $payment = $this->paymentService->execute($request->validated());
+        $this->notificationService->sendPaymentStatus($payment);
 
-        if ($request->has('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        $payments = $query->latest()->get();
-
-        return PaymentResource::collection($payments);
+        return response()->json(new PaymentResource($payment), 201);
     }
 
     public function show(Payment $payment)
     {
         return new PaymentResource($payment);
     }
-    public function store(StorePaymentRequest $request)
+
+    public function refund(Payment $payment)
     {
-        $payment = Payment::create($request->validated());
+        $refunded = $this->paymentService->refund($payment);
+        $this->notificationService->sendPaymentStatus($refunded);
 
-        // Optionally trigger async notification:
-        // event(new PaymentCreated($payment));
+        return response()->json($refunded);
+    }
 
-        $isSuccessful = true; // simulate success/failure
-
-        if ($isSuccessful) {
-            $payment->update([
-                'status' => PaymentStatus::SUCCESS,
-                'transaction_id' => 'FAKE-' . strtoupper(Str::random(10)),
-            ]);
-        } else {
-            $payment->update([
-                'status' => 'failed',
-            ]);
-        }
-
-        // Step 3. Return resource
-        return new PaymentResource($payment);
+    public function userPayments(Request $request)
+    {
+        $user_id = $request->query("user_id");
+        $request->validate([
+            'user_id' => 'required|integer'
+        ]);
+        $payments = $this->paymentService->getUserPayments($user_id);
+        return response()->json($payments);
     }
 }
