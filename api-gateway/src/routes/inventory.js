@@ -14,7 +14,7 @@ router.use(
     target: config.services.ticketInventory,
     changeOrigin: true,
     pathRewrite: {
-      '^/inventory': '/api/v1', // Réécrire /inventory vers /api/v1
+      '^/inventory': '/tickets', // Réécrire /inventory vers /tickets
     },
     onProxyReq: (proxyReq, req, res) => {
       // Transférer les headers d'authentification

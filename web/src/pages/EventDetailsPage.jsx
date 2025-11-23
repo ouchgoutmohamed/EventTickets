@@ -12,13 +12,18 @@ import { Shield } from "lucide-react";
 
 // Contextes & Services
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { getEventById } from '@/features/catalog/services/eventService';
 import { getStatusConfig } from '../utils/statusHelpers';
+import { useReservation } from '@/features/inventory/hooks/useReservation';
+import AvailabilityBadge from '@/features/inventory/components/AvailabilityBadge';
 
 const EventDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { error: showError } = useToast();
+  const { isAuthenticated } = useAuth();
+  const { reserve, loading: reserving } = useReservation();
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -94,6 +99,51 @@ const EventDetailsPage = () => {
     return event.tickets.reduce((total, ticket) => {
         return total + (ticket.price * (ticketQuantities[ticket.id] || 0));
     }, 0);
+  };
+
+  const getTotalQuantity = () => {
+    return Object.values(ticketQuantities).reduce((sum, qty) => sum + qty, 0);
+  };
+
+  const handleReservation = async () => {
+    // Vérifier l'authentification
+    if (!isAuthenticated) {
+      showError('Vous devez être connecté pour réserver des tickets');
+      navigate('/login', { state: { from: `/events/${id}` } });
+      return;
+    }
+
+    const totalQuantity = getTotalQuantity();
+    
+    // Vérifier qu'au moins un ticket est sélectionné
+    if (totalQuantity === 0) {
+      showError('Veuillez sélectionner au moins un ticket');
+      return;
+    }
+
+    try {
+      // Créer la réservation via l'API
+      const response = await reserve(id, totalQuantity);
+      
+      // Préparer les détails de la réservation pour la page de paiement
+      const reservationDetails = {
+        reservationId: response.reservationId,
+        holdExpiresAt: response.holdExpiresAt,
+        eventTitle: event.title,
+        eventDate: event.startTime,
+        quantity: totalQuantity,
+        unitPrice: event.tickets?.[0]?.price || 0,
+        totalPrice: calculateTotal()
+      };
+
+      // Rediriger vers la page de paiement
+      navigate(`/payment/${response.reservationId}`, {
+        state: { reservation: reservationDetails }
+      });
+    } catch (err) {
+      // Les erreurs sont déjà gérées dans le hook useReservation
+      console.error('Erreur lors de la réservation:', err);
+    }
   };
 
   const getImageUrl = () => {
@@ -278,28 +328,36 @@ const EventDetailsPage = () => {
                     ) : (
                         <div className="space-y-3">
                             {event.tickets.map(ticket => (
-                                <div key={ticket.id} className="flex justify-between items-center p-3 border rounded-lg hover:border-green-200 transition-colors bg-gray-50/50">
-                                   <div>
-                                       <div className="font-bold text-gray-800">{ticket.name}</div>
-                                       <div className="text-sm text-green-700 font-medium">{ticket.price} MAD</div>
-                                       <div className="text-xs text-gray-400 mt-0.5">{ticket.quantity} restants</div>
-                                   </div>
-                                   <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-full border shadow-sm">
-                                      <button 
-                                          onClick={() => updateQuantity(ticket.id, -1)} 
-                                          className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-30"
-                                          disabled={!ticketQuantities[ticket.id]}
-                                      >
-                                          <Minus size={14}/>
-                                      </button>
-                                      <span className="w-4 text-center font-bold text-sm">{ticketQuantities[ticket.id] || 0}</span>
-                                      <button 
-                                          onClick={() => updateQuantity(ticket.id, 1)} 
-                                          className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-30"
-                                          disabled={ticket.quantity <= 0 || (ticketQuantities[ticket.id] || 0) >= ticket.quantity}
-                                      >
-                                          <Plus size={14}/>
-                                      </button>
+                                <div key={ticket.id} className="space-y-2">
+                                   <div className="flex justify-between items-center p-3 border rounded-lg hover:border-green-200 transition-colors bg-gray-50/50">
+                                      <div className="flex-1">
+                                          <div className="flex items-center gap-2">
+                                              <div className="font-bold text-gray-800">{ticket.name}</div>
+                                              <AvailabilityBadge eventId={id} enablePolling={true} />
+                                          </div>
+                                          <div className="text-sm text-green-700 font-medium">{ticket.price} MAD</div>
+                                          <div className="text-xs text-gray-400 mt-0.5">{ticket.quantity} restants</div>
+                                      </div>
+                                      <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-full border shadow-sm">
+                                         <button 
+                                             onClick={() => updateQuantity(ticket.id, -1)} 
+                                             className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-30"
+                                             disabled={!ticketQuantities[ticket.id]}
+                                         >
+                                             <Minus size={14}/>
+                                         </button>
+                                         <span className="w-4 text-center font-bold text-sm">{ticketQuantities[ticket.id] || 0}</span>
+                                         <button 
+                                             onClick={() => updateQuantity(ticket.id, 1)} 
+                                             className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-30"
+                                             disabled={(() => {
+                                               const selectedQty = ticketQuantities[ticket.id] || 0;
+                                               return ticket.quantity <= 0 || selectedQty >= ticket.quantity || selectedQty >= 10;
+                                             })()}
+                                         >
+                                             <Plus size={14}/>
+                                         </button>
+                                      </div>
                                    </div>
                                 </div>
                             ))}
@@ -315,9 +373,10 @@ const EventDetailsPage = () => {
 
                         <Button 
                             className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-bold shadow-lg shadow-green-100 transition-all hover:shadow-green-200"
-                            disabled={calculateTotal() === 0}
+                            disabled={calculateTotal() === 0 || reserving}
+                            onClick={handleReservation}
                         >
-                          Réserver maintenant
+                          {reserving ? 'Réservation en cours...' : 'Réserver maintenant'}
                         </Button>
                         <p className="text-[10px] text-center text-gray-400 mt-2 flex items-center justify-center gap-1">
                             <Shield size={10} /> Paiement 100% sécurisé
