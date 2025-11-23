@@ -179,6 +179,25 @@ api-gateway/
 └── README.md
 ```
 
+## Sécurité
+
+Voir [SECURITY.md](./SECURITY.md) pour les détails complets de la sécurité.
+
+### Points de sécurité implémentés
+
+- ✅ Authentification JWT avec vérification de signature et expiration
+- ✅ Séparation claire entre routes publiques et protégées
+- ✅ Injection sécurisée des headers utilisateur vers les microservices
+- ✅ Gestion d'erreurs sans fuite d'informations sensibles
+- ✅ Configuration CORS appropriée
+- ✅ Logging des requêtes pour audit
+
+### Améliorations futures recommandées
+
+- Rate limiting (voir CodeQL alerts dans SECURITY.md)
+- Headers de sécurité additionnels (Helmet.js)
+- Validation et sanitisation des entrées
+
 ## Dépannage
 
 ### Service backend indisponible
