@@ -9,6 +9,8 @@ import com.project.eventcatalogservice.security.CustomUserDetails;
 import com.project.eventcatalogservice.services.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,94 +24,141 @@ public class EventController {
 
     private final EventService eventService;
 
-    // Création d'un événement (status initial = DRAFT)
-    @PostMapping("create")
-    public EventResponse createEvent(@RequestBody CreateEventRequest request,
-                                     @AuthenticationPrincipal CustomUserDetails currentUser) {
-        CreateEventRequest requestWithOrganizer = new CreateEventRequest(
-                request.title(),
-                request.description(),
-                request.date(),
-                request.startTime(),
-                request.endTime(),
-                request.status(),
-                request.category(),
-                currentUser.getOrganizerId(),
-                request.venueId(),
-                request.artistIds(),
-                request.ticketTypes(),
-                request.images()
-        );
+    /**
+     * Créer un événement (ORGANIZER ou ADMIN uniquement)
+     */
+    @PostMapping("/create")
+    public ResponseEntity<EventResponse> createEvent(
+            @RequestBody CreateEventRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        return eventService.createEvent(requestWithOrganizer);
+        if (currentUser == null) {
+            throw new SecurityException("Utilisateur non authentifié");
+        }
+
+        EventResponse response = eventService.createEvent(request, currentUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
-    // Mise à jour d'un événement (uniquement si propriétaire)
+    /**
+     * Mettre à jour un événement (propriétaire ou ADMIN uniquement)
+     */
     @PutMapping("/{id}")
-    public EventResponse updateEvent(@PathVariable Long id,
-                                     @RequestBody UpdateEventRequest request,
-                                     @AuthenticationPrincipal CustomUserDetails currentUser) {
-        return eventService.updateEvent(id, request, currentUser.getOrganizerId());
+    public ResponseEntity<EventResponse> updateEvent(
+            @PathVariable Long id,
+            @RequestBody UpdateEventRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        if (currentUser == null) {
+            throw new SecurityException("Utilisateur non authentifié");
+        }
+
+        EventResponse response = eventService.updateEvent(id, request, currentUser);
+        return ResponseEntity.ok(response);
     }
 
-    // Suppression logique (soft delete) (uniquement si propriétaire)
+    /**
+     * Supprimer un événement (soft delete) - propriétaire ou ADMIN uniquement
+     */
     @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id,
-                            @AuthenticationPrincipal CustomUserDetails currentUser) {
-        eventService.deleteEvent(id, currentUser.getOrganizerId());
+    public ResponseEntity<Void> deleteEvent(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        if (currentUser == null) {
+            throw new SecurityException("Utilisateur non authentifié");
+        }
+
+        eventService.deleteEvent(id, currentUser);
+        return ResponseEntity.noContent().build();
     }
 
-    // Récupérer un événement par ID
+    /**
+     * Récupérer un événement par ID (public)
+     */
     @GetMapping("/{id}")
-    public EventResponse getEvent(@PathVariable Long id) {
-        return eventService.getEventById(id);
+    public ResponseEntity<EventResponse> getEvent(@PathVariable Long id) {
+        EventResponse response = eventService.getEventById(id);
+        return ResponseEntity.ok(response);
     }
 
-    // Récupérer tous les événements non supprimés
-    @GetMapping
-    public List<EventResponse> getAllEvents() {
-        return eventService.getAllEvents();
+    /**
+     * Récupérer tous les événements (public)
+     */
+    @GetMapping("/list-events")
+    public ResponseEntity<List<EventResponse>> getAllEvents() {
+        List<EventResponse> events = eventService.getAllEvents();
+        return ResponseEntity.ok(events);
     }
 
-    // Filtrer par catégorie (enum)
+    /**
+     * Filtrer par catégorie (public)
+     */
     @GetMapping("/category/{category}")
-    public List<EventResponse> getEventsByCategory(@PathVariable CategoryType category) {
-        return eventService.getEventsByCategory(category);
+    public ResponseEntity<List<EventResponse>> getEventsByCategory(@PathVariable CategoryType category) {
+        List<EventResponse> events = eventService.getEventsByCategory(category);
+        return ResponseEntity.ok(events);
     }
 
-    // Filtrer par status
+    /**
+     * Filtrer par status (public)
+     */
     @GetMapping("/status/{status}")
-    public List<EventResponse> getEventsByStatus(@PathVariable EventStatus status) {
-        return eventService.getEventsByStatus(status);
+    public ResponseEntity<List<EventResponse>> getEventsByStatus(@PathVariable EventStatus status) {
+        List<EventResponse> events = eventService.getEventsByStatus(status);
+        return ResponseEntity.ok(events);
     }
 
-    // Filtrer par organisateur
-    @GetMapping("/organizer/{organizerId}")
-    public List<EventResponse> getEventsByOrganizer(@PathVariable Long organizerId) {
-        return eventService.getEventsByOrganizer(organizerId);
+    /**
+     * Récupérer MES événements (utilisateur connecté)
+     */
+    @GetMapping("/my-events")
+    public ResponseEntity<List<EventResponse>> getMyEvents(
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        if (currentUser == null) {
+            throw new SecurityException("Utilisateur non authentifié");
+        }
+
+        List<EventResponse> events = eventService.getMyEvents(currentUser);
+        return ResponseEntity.ok(events);
     }
 
-    // Recherche par mot-clé (title / description)
+    /**
+     * Rechercher des événements par mot-clé (public)
+     */
     @GetMapping("/search")
-    public List<EventResponse> searchEvents(@RequestParam String keyword) {
-        return eventService.searchEvents(keyword);
+    public ResponseEntity<List<EventResponse>> searchEvents(@RequestParam String keyword) {
+        List<EventResponse> events = eventService.searchEvents(keyword);
+        return ResponseEntity.ok(events);
     }
 
-    // Filtrer entre deux dates
-    @GetMapping("/date")
-    public List<EventResponse> getEventsBetweenDates(
+    /**
+     * Filtrer par plage de dates (public)
+     */
+    @GetMapping("/date-range")
+    public ResponseEntity<List<EventResponse>> getEventsBetweenDates(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date end
-    ) {
-        return eventService.getEventsBetweenDates(start, end);
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date end) {
+
+        List<EventResponse> events = eventService.getEventsBetweenDates(start, end);
+        return ResponseEntity.ok(events);
     }
 
-    // Mise à jour du status (DRAFT → PUBLISHED ou autre) (uniquement si propriétaire)
+    /**
+     * Mettre à jour le status d'un événement (propriétaire ou ADMIN uniquement)
+     */
     @PatchMapping("/{id}/status")
-    public EventResponse updateEventStatus(@PathVariable Long id,
-                                           @RequestParam EventStatus status,
-                                           @AuthenticationPrincipal CustomUserDetails currentUser) {
-        return eventService.updateEventStatus(id, status, currentUser.getOrganizerId());
+    public ResponseEntity<EventResponse> updateEventStatus(
+            @PathVariable Long id,
+            @RequestParam EventStatus status,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        if (currentUser == null) {
+            throw new SecurityException("Utilisateur non authentifié");
+        }
+
+        EventResponse response = eventService.updateEventStatus(id, status, currentUser);
+        return ResponseEntity.ok(response);
     }
 }
