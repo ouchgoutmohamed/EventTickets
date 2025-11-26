@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // 1. Définition des URLs de base (Idéalement via .env)
 const URLS = {
+  API_GATEWAY: import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:3000',
   USERS: import.meta.env.VITE_API_USER_URL || 'http://localhost:3001/api',
   CATALOG: import.meta.env.VITE_API_CATALOG_URL || 'http://localhost:8080/events',
   TICKETS: import.meta.env.VITE_API_TICKET_URL || 'http://localhost:8083/api',  // À adapter
@@ -9,6 +10,7 @@ const URLS = {
 };
 
 // 2. Création des instances spécifiques pour chaque microservice
+export const apiGatewayClient = axios.create({ baseURL: URLS.API_GATEWAY, headers: { 'Content-Type': 'application/json' } });
 export const userClient = axios.create({ baseURL: URLS.USERS, headers: { 'Content-Type': 'application/json' } });
 export const catalogClient = axios.create({ baseURL: URLS.CATALOG, headers: { 'Content-Type': 'application/json' } });
 //export const ticketClient = axios.create({ baseURL: URLS.TICKETS, headers: { 'Content-Type': 'application/json' } });
@@ -94,6 +96,7 @@ const attachInterceptors = (axiosInstance) => {
 };
 
 // 4. Application de la logique à TOUTES les instances
+attachInterceptors(apiGatewayClient);
 attachInterceptors(userClient);
 attachInterceptors(catalogClient);
 //attachInterceptors(ticketClient);
