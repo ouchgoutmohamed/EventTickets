@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -139,29 +140,132 @@ public EventResponse createEvent(CreateEventRequest request, CustomUserDetails c
     /**
      * Mettre à jour un événement (uniquement si propriétaire ou admin)
      */
+
     @Transactional
-    public EventResponse updateEvent(Long eventId, UpdateEventRequest request, CustomUserDetails currentUser) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+public EventResponse updateEvent(Long eventId, UpdateEventRequest request, CustomUserDetails currentUser) {
+    
+    // 1. Récupération de l'événement existant
+    Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        // Vérifier que l'utilisateur est le propriétaire ou admin
-        if (!isOwnerOrAdmin(event, currentUser)) {
-            throw new SecurityException("Access denied: Not the event owner");
-        }
-
-        event.setTitle(request.title());
-        event.setDescription(request.description());
-        event.setDate(request.date());
-        event.setStartTime(request.startTime());
-        event.setEndTime(request.endTime());
-
-        if (request.status() != null) {
-            event.setStatus(EventStatus.valueOf(request.status().toUpperCase()));
-        }
-
-        eventRepository.save(event);
-        return mapToResponse(event);
+    // 2. Vérification des droits (Propriétaire ou Admin)
+    // (J'utilise ta méthode helper isOwnerOrAdmin que tu as mentionnée plus tôt)
+    if (!isOwnerOrAdmin(event, currentUser)) {
+        throw new SecurityException("Access denied: Not the event owner");
     }
+
+    // 3. Mise à jour des champs simples
+    event.setTitle(request.title());
+    event.setDescription(request.description());
+    event.setDate(request.date());
+    event.setStartTime(request.startTime());
+    event.setEndTime(request.endTime());
+    
+    // Statut (utilisation directe de l'Enum)
+    if (request.status() != null) {
+        event.setStatus(request.status());
+    }
+
+    // Catégorie (utilisation directe de l'Enum CategoryType)
+    if (request.category() != null) {
+        event.setCategory(request.category());
+    }
+
+    // 4. Mise à jour du Venue
+    if (request.venue() != null) {
+        Venue venue = event.getVenue();
+        if (venue == null) {
+            venue = new Venue(); // Créer si inexistant
+        }
+        // Mise à jour des champs
+        venue.setName(request.venue().name());
+        venue.setAddress(request.venue().address());
+        venue.setCity(request.venue().city());
+        venue.setCapacity(request.venue().capacity());
+        
+        // Comme dans ta création, on sauvegarde le venue explicitement
+        venue = venueRepository.save(venue);
+        event.setVenue(venue);
+    }
+
+    // ==================================================================================
+    // GESTION DES LISTES (CLEAR & REPLACE)
+    // ==================================================================================
+
+    // 5. Mise à jour des Artistes
+    if (request.artists() != null) {
+        // On vide la liste existante (Hibernate gère la suppression via orphanRemoval=true)
+        event.getArtists().clear(); 
+        
+        for (CreateArtistRequest artistReq : request.artists()) {
+            Artist artist = new Artist();
+            artist.setName(artistReq.name());
+            artist.setGenre(artistReq.genre());
+            artist.setCountry(artistReq.country());
+            // On sauvegarde l'artiste comme dans la création
+            artist = artistRepository.save(artist);
+            
+            event.getArtists().add(artist);
+        }
+    }
+
+    // 6. Mise à jour des Tickets
+if (request.ticketTypes() != null) {
+    // A. Récupérer les tickets existants en Map pour accès rapide par Nom (ou ID si le front l'envoyait)
+    Map<String, TicketType> existingTicketsMap = event.getTicketTypes().stream()
+        .collect(Collectors.toMap(TicketType::getTicketName, t -> t));
+
+    List<TicketType> updatedList = new ArrayList<>();
+
+    for (CreateTicketTypeRequest dto : request.ticketTypes()) {
+        // On cherche si un ticket avec ce nom existe déjà
+        TicketType ticket = existingTicketsMap.get(dto.name());
+
+        if (ticket != null) {
+            // MISE À JOUR de l'existant
+            ticket.setPrice(dto.price());
+            ticket.setQuantity(dto.quantity());
+            // On l'ajoute à la nouvelle liste (et on le retire de la map pour savoir qu'il est traité)
+            existingTicketsMap.remove(dto.name());
+        } else {
+            // CRÉATION d'un nouveau ticket
+            ticket = new TicketType();
+            ticket.setTicketName(dto.name());
+            ticket.setPrice(dto.price());
+            ticket.setQuantity(dto.quantity());
+            ticket.setEvent(event);
+        }
+        updatedList.add(ticket);
+    }
+
+    // B. Appliquer les changements
+    // 1. On vide la liste actuelle de l'event
+    event.getTicketTypes().clear();
+    // 2. On ajoute la liste reconstruite (qui contient les instances mises à jour + les nouvelles)
+    event.getTicketTypes().addAll(updatedList);
+}
+
+  
+
+    // 7. Mise à jour des Images
+    if (request.images() != null) {
+        event.getImages().clear();
+        
+        for (CreateEventImageRequest imgReq : request.images()) {
+            EventImage img = new EventImage();
+            img.setUrl(imgReq.url());
+            img.setEvent(event); // Lien bidirectionnel important
+            
+            event.getImages().add(img);
+        }
+    }
+
+    // 8. Sauvegarde finale de l'événement
+    Event updatedEvent = eventRepository.save(event);
+
+    return mapToResponse(updatedEvent);
+}
+   
 
     /**
      * Suppression logique (soft delete)
