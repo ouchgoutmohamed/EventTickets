@@ -113,24 +113,78 @@ const EventForm = ({
   const removeItem = (setter, index) =>
     setter((prev) => prev.filter((_, i) => i !== index));
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Construction des dates ISO complètes
-      const startDateTime = `${formData.date}T${formData.startTime}:00`;
-      const endDateTime = `${formData.date}T${formData.endTime}:00`;
+      // 1. Formatage des Dates (ISO 8601)
+      // Le backend attend souvent "YYYY-MM-DDTHH:mm:ss" pour LocalDateTime
+      const formattedDate = formData.date ? `${formData.date}T00:00:00Z` : null;
+      
+      // Gestion sécurisée des heures (ajout des secondes :00 si absentes)
+      const startDateTime = (formData.date && formData.startTime) 
+        ? `${formData.date}T${formData.startTime.length === 5 ? formData.startTime + ':00' : formData.startTime}` 
+        : null;
+        
+      const endDateTime = (formData.date && formData.endTime) 
+        ? `${formData.date}T${formData.endTime.length === 5 ? formData.endTime + ':00' : formData.endTime}` 
+        : null;
 
+      // 2. Sécurité Catégorie (Correction de l'erreur 400)
+      // Si la catégorie est vide ou undefined, on force une valeur valide de l'Enum Java
+      const validCategory = (formData.category && formData.category.trim() !== "") 
+        ? formData.category 
+        : "MUSIC";
+
+      // 3. Construction du Payload
       const payload = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        date: formattedDate,
         startTime: startDateTime,
         endTime: endDateTime,
-        tickets: ticketTypes,
-        images: images.filter((img) => img.url !== ""), // Filtrer les images vides
-        artists: artists.filter((a) => a.name !== ""), // Filtrer les artistes vides
+        status: formData.status || "DRAFT",
+        
+        category: validCategory, // ✅ Valeur sécurisée
+
+        // Objet Venue
+        venue: {
+          name: formData.venue.name,
+          address: formData.venue.address,
+          city: formData.venue.city,
+          capacity: parseInt(formData.venue.capacity) || 0 // Force un entier
+        },
+
+        // Liste Artistes
+        artists: artists
+          .filter(a => a.name.trim() !== "") // Ignore les vides
+          .map(a => ({
+            name: a.name,
+            genre: a.genre,
+            country: a.country
+          })),
+
+        // Liste TicketTypes (⚠️ Nom clé modifié pour matcher le Java : ticketTypes)
+        ticketTypes: ticketTypes
+          .filter(t => t.name.trim() !== "")
+          .map(t => ({
+            name: t.name,
+            price: parseFloat(t.price) || 0, // Force un décimal
+            quantity: parseInt(t.quantity) || 0 // Force un entier
+          })),
+
+        // Liste Images
+        images: images
+          .filter(img => img.url.trim() !== "")
+          .map(img => ({
+            url: img.url
+          }))
       };
 
+      console.log("📤 Payload envoyé :", payload); // Pour débugger si besoin
+
+      // 4. Appel API
       let response;
       if (isEditing) {
         response = await updateEvent(initialData.id, payload);
@@ -141,9 +195,12 @@ const EventForm = ({
       }
 
       if (onSuccess) onSuccess(response);
+
     } catch (err) {
-      console.error(err);
-      showError("Une erreur est survenue lors de l'enregistrement.");
+      console.error("❌ Erreur API :", err);
+      // Extraction propre du message d'erreur du backend
+      const errorMessage = err.response?.data?.message || err.message || "Une erreur est survenue.";
+      showError(`Erreur : ${errorMessage}`);
     } finally {
       setLoading(false);
     }

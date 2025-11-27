@@ -31,6 +31,7 @@ const authMiddleware = (req, res, next) => {
     const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
+      console.log('[Auth] Token manquant pour:', req.method, req.originalUrl);
       return res.status(401).json({
         success: false,
         message: 'Token d\'authentification manquant',
@@ -42,6 +43,7 @@ const authMiddleware = (req, res, next) => {
     try {
       decoded = jwt.verify(token, config.jwt.secret);
     } catch (error) {
+      console.log('[Auth] Erreur de vérification du token:', error.name, error.message);
       const message = error.name === 'TokenExpiredError' 
         ? 'Token expiré' 
         : error.name === 'JsonWebTokenError'
@@ -58,7 +60,9 @@ const authMiddleware = (req, res, next) => {
     req.user = {
       id: decoded.userId,
       email: decoded.email,
-      role: decoded.role,
+      role: decoded.roleName || decoded.role,
+      roleId: decoded.roleId,
+      organizerId: decoded.organizerId,
     };
 
     // Ajouter les headers pour les microservices
@@ -66,6 +70,9 @@ const authMiddleware = (req, res, next) => {
     req.headers['x-user-role'] = req.user.role || 'USER';
     if (req.user.email) {
       req.headers['x-user-email'] = req.user.email;
+    }
+    if (req.user.organizerId) {
+      req.headers['x-organizer-id'] = req.user.organizerId;
     }
 
     next();
@@ -104,7 +111,9 @@ const optionalAuthMiddleware = (req, res, next) => {
     req.user = {
       id: decoded.userId,
       email: decoded.email,
-      role: decoded.role,
+      role: decoded.roleName || decoded.role,
+      roleId: decoded.roleId,
+      organizerId: decoded.organizerId,
     };
 
     // Ajouter les headers pour les microservices
@@ -112,6 +121,9 @@ const optionalAuthMiddleware = (req, res, next) => {
     req.headers['x-user-role'] = req.user.role || 'USER';
     if (req.user.email) {
       req.headers['x-user-email'] = req.user.email;
+    }
+    if (req.user.organizerId) {
+      req.headers['x-organizer-id'] = req.user.organizerId;
     }
 
     next();

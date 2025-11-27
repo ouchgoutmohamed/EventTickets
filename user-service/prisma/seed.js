@@ -13,11 +13,6 @@ async function main() {
     create: {
       nom: 'client',
       description: 'Utilisateur client standard',
-      permissions: {
-        canBuyTickets: true,
-        canViewEvents: true,
-        canManageProfile: true,
-      },
     },
   });
 
@@ -27,14 +22,6 @@ async function main() {
     create: {
       nom: 'organisateur',
       description: 'Organisateur d\'événements',
-      permissions: {
-        canBuyTickets: true,
-        canViewEvents: true,
-        canManageProfile: true,
-        canCreateEvents: true,
-        canManageEvents: true,
-        canViewStats: true,
-      },
     },
   });
 
@@ -44,12 +31,6 @@ async function main() {
     create: {
       nom: 'administrateur',
       description: 'Administrateur de la plateforme',
-      permissions: {
-        fullAccess: true,
-        canManageUsers: true,
-        canManageRoles: true,
-        canViewAllData: true,
-      },
     },
   });
 
@@ -74,10 +55,10 @@ async function main() {
           telephone: '+33 1 23 45 67 89',
           ville: 'Paris',
           pays: 'France',
-          preferences: {
+          preferences: JSON.stringify({
             notifications: true,
             langue: 'fr',
-          },
+          }),
         },
       },
     },
@@ -104,10 +85,10 @@ async function main() {
           telephone: '+33 6 12 34 56 78',
           ville: 'Lyon',
           pays: 'France',
-          preferences: {
+          preferences: JSON.stringify({
             notifications: true,
             langue: 'fr',
-          },
+          }),
         },
       },
     },
@@ -134,10 +115,10 @@ async function main() {
           telephone: '+33 6 98 76 54 32',
           ville: 'Marseille',
           pays: 'France',
-          preferences: {
+          preferences: JSON.stringify({
             notifications: true,
             langue: 'fr',
-          },
+          }),
         },
       },
     },
