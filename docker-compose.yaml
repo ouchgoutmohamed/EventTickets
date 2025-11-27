@@ -1,0 +1,38 @@
+services:
+
+  payment-app:
+    build:
+      context: ./paymentAndNotificationService
+    container_name: payment-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./paymentAndNotificationService:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    command: ["sh", "/var/www/html/entrypoint.sh"]
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: event-tickets-db
+      # MYSQL_USER: user
+      # MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  mysql_data:

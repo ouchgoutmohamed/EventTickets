@@ -1,0 +1,292 @@
+openapi: 3.0.3
+info:
+  title: Payment & Notification Microservice API
+  version: 1.0.0
+  description: API documentation for the payment and notification microservice built with Laravel 12.
+
+servers:
+  - url: http://127.0.0.1:8000/api
+
+paths:
+
+  /payments:
+    post:
+      summary: Create a new payment
+      description: Executes a payment and immediately triggers a notification to the user.
+      tags: [Payments]
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Must be set to application/json to receive JSON error responses.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+      responses:
+        '201':
+          description: Payment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              example:
+                id: 5
+                transaction_id: "7d695e1b-21fd-48f4-ad3b-ed057b07658f"
+                user_id: 12
+                event_id: 32
+                ticket_id: 19
+                amount: 34
+                currency: "MDA"
+                status: "Success"
+                method: "Paypal"
+                reason: null
+                provider: null
+                created_at: "2025-11-26T18:57:12.000000Z"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "User not found"
+
+    get:
+      summary: Get payments of a specific user
+      tags: [Payments]
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the user whose payments should be returned.
+      responses:
+        '200':
+          description: List of payments for the given user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+              example:
+                - data:
+                    id: 3
+                    transaction_id: "6a1cacb3-3522-4eb4-b908-b71b026c1eac"
+                    user_id: 12
+                    event_id: 32
+                    ticket_id: 19
+                    amount: 34
+                    currency: "MDA"
+                    status: "Success"
+                    method: "Paypal"
+                    reason: null
+                    provider: null
+                    created_at: "2025-11-26T18:52:37.000000Z"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "User not found"
+
+
+  /payments/{id}:
+    get:
+      summary: Get a single payment by ID
+      tags: [Payments]
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Payment ID
+      responses:
+        '200':
+          description: Payment found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+              example:
+                data:
+                  id: 3
+                  transaction_id: "6a1cacb3-3522-4eb4-b908-b71b026c1eac"
+                  user_id: 12
+                  event_id: 32
+                  ticket_id: 19
+                  amount: 34
+                  currency: "MDA"
+                  status: "Success"
+                  method: "Paypal"
+                  reason: null
+                  provider: null
+                  created_at: "2025-11-26T18:52:37.000000Z"
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Payment not found"
+
+
+  /payments/{id}/refund:
+    post:
+      summary: Refund a payment
+      tags: [Payments]
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Payment ID to refund
+      responses:
+        '200':
+          description: Payment successfully refunded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              example:
+                id: 5
+                transaction_id: "7d695e1b-21fd-48f4-ad3b-ed057b07658f"
+                user_id: 12
+                event_id: 32
+                ticket_id: 19
+                amount: 34
+                currency: "MDA"
+                status: "Refunded"
+                method: "Paypal"
+                reason: "Refund issued by admin"
+                provider: null
+                created_at: "2025-11-26T18:57:12.000000Z"
+                updated_at: "2025-11-26T20:08:52.000000Z"
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Payment not found"
+        '500':
+          description: Cannot refund a non-successful payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Only successful payments can be refunded"
+
+
+components:
+
+  schemas:
+
+    PaymentCreateRequest:
+      type: object
+      required:
+        - user_id
+        - event_id
+        - ticket_id
+        - currency
+        - amount
+        - method
+      properties:
+        user_id:
+          type: integer
+        event_id:
+          type: integer
+        ticket_id:
+          type: integer
+        currency:
+          type: string
+          example: "MDA"
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+        method:
+          type: string
+          enum:
+            - Credit Card
+            - Paypal
+            - Stripe
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        transaction_id:
+          type: string
+        user_id:
+          type: integer
+        event_id:
+          type: integer
+        ticket_id:
+          type: integer
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum:
+            - Pending
+            - Success
+            - Failed
+            - Refunded
+        method:
+          type: string
+        reason:
+          type: string
+          nullable: true
+        provider:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
