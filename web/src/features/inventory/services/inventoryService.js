@@ -57,11 +57,12 @@ export const releaseReservation = async (reservationId) => {
 /**
  * INT-020: Consulter les réservations et achats d'un utilisateur
  * @param {number} userId - L'identifiant de l'utilisateur
- * @returns {Promise<{reservations: Array}>}
+ * @returns {Promise<Array>} Liste des réservations
  */
 export const getUserReservations = async (userId) => {
   const response = await apiGatewayClient.get(
     `/inventory/user/${userId}`
   );
-  return response.data;
+  // L'API retourne { items: [...] }, on extrait le tableau
+  return response.data.items || [];
 };

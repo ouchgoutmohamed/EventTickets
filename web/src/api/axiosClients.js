@@ -10,9 +10,21 @@ const URLS = {
 };
 
 // 2. Création des instances spécifiques pour chaque microservice
-export const apiGatewayClient = axios.create({ baseURL: URLS.API_GATEWAY, headers: { 'Content-Type': 'application/json' } });
-export const userClient = axios.create({ baseURL: URLS.USERS, headers: { 'Content-Type': 'application/json' } });
-export const catalogClient = axios.create({ baseURL: URLS.CATALOG, headers: { 'Content-Type': 'application/json' } });
+export const apiGatewayClient = axios.create({ 
+  baseURL: URLS.API_GATEWAY, 
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 30000 // 30 secondes
+});
+export const userClient = axios.create({ 
+  baseURL: URLS.USERS, 
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 30000
+});
+export const catalogClient = axios.create({ 
+  baseURL: URLS.CATALOG, 
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 30000
+});
 //export const ticketClient = axios.create({ baseURL: URLS.TICKETS, headers: { 'Content-Type': 'application/json' } });
 //export const paymentClient = axios.create({ baseURL: URLS.PAYMENTS, headers: { 'Content-Type': 'application/json' } });
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const config = require('./config');
-const { authMiddleware } = require('./middleware/authMiddleware');
+const { authMiddleware, optionalAuthMiddleware } = require('./middleware/authMiddleware');
 const { loggingMiddleware } = require('./middleware/loggingMiddleware');
 const {
   authRoutes,
@@ -10,6 +10,7 @@ const {
   inventoryRoutes,
   paymentsRoutes,
 } = require('./routes');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
@@ -76,9 +77,14 @@ app.get('/', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/events', eventsRoutes);
 
+// Route publique: disponibilité des tickets (sans authentification)
+app.get('/inventory/availability/:eventId', optionalAuthMiddleware, inventoryRoutes);
+
+// Routes protégées (avec authentification) pour le reste des endpoints inventory
+app.use('/inventory', authMiddleware, inventoryRoutes);
+
 // Routes protégées (avec authentification)
 app.use('/users', authMiddleware, usersRoutes);
-app.use('/inventory', authMiddleware, inventoryRoutes);
 app.use('/payments', authMiddleware, paymentsRoutes);
 
 // Middleware de gestion des routes non trouvées
