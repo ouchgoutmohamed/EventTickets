@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: eventtickets-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eventtickets
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - eventtickets-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # User Service (Node.js + Prisma)
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: eventtickets-user-service
+    environment:
+      DATABASE_URL: mysql://root:root@mysql:3306/eventtickets_users
+      JWT_SECRET: dev_secret_key_changez_moi_en_production_2024
+      JWT_REFRESH_SECRET: dev_refresh_secret_key_changez_moi_en_production_2024
+      PORT: 3001
+      NODE_ENV: production
+    ports:
+      - "3001:3001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - eventtickets-network
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  # Event Catalog Service (Spring Boot)
+  event-catalog-service:
+    build:
+      context: ./EventCatalogService
+      dockerfile: Dockerfile
+    container_name: eventtickets-event-catalog
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventtickets_events?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - eventtickets-network
+
+  # Ticket Inventory Service (Spring Boot)
+  ticket-inventory-service:
+    build:
+      context: ./TicketInventoryService
+      dockerfile: Dockerfile
+    container_name: eventtickets-inventory
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ticket_inventory?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8082
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - eventtickets-network
+
+  # Payment and Notification Service (Laravel/PHP)
+  payment-service:
+    build:
+      context: ./paymentAndNotificationService
+      dockerfile: Dockerfile
+    container_name: eventtickets-payment
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: eventtickets_payments
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      APP_KEY: base64:your-generated-key-here
+      APP_ENV: production
+      APP_DEBUG: false
+    ports:
+      - "8083:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - eventtickets-network
+
+  # API Gateway (Node.js + Express)
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: eventtickets-gateway
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      JWT_SECRET: dev_secret_key_changez_moi_en_production_2024
+      USER_SERVICE_URL: http://user-service:3001
+      EVENT_CATALOG_SERVICE_URL: http://event-catalog-service:8080
+      TICKET_INVENTORY_SERVICE_URL: http://ticket-inventory-service:8082
+      PAYMENT_SERVICE_URL: http://payment-service:8000
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - event-catalog-service
+      - ticket-inventory-service
+      - payment-service
+    networks:
+      - eventtickets-network
+
+  # Frontend Web (React + Vite)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: eventtickets-web
+    environment:
+      VITE_API_GATEWAY_URL: http://localhost:3000
+      VITE_API_USER_URL: http://localhost:3001/api
+      VITE_API_CATALOG_URL: http://localhost:8080/events
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - eventtickets-network
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  eventtickets-network:
+    driver: bridge
