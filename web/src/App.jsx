@@ -13,9 +13,11 @@ import MyEventsPage from './pages/MyEventsPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/AdminDashboard';
 import RoleManagement from './features/auth/components/RoleManagement';
 import UserManagement from './features/auth/components/UserManagement';
 import UserDetail from './features/auth/components/UserDetail';
+import CreateOrganizerPage from './pages/CreateOrganizerPage';
 import EditEventPage from './pages/EditEventPage';
 
 
@@ -26,8 +28,9 @@ export default function App() {
            {/* === Routes Publiques (Avec Header public) === */}
            <Route path="/" element={<><Header /><HomePage /></>} />
            <Route path="/events/:id" element={<><Header /><EventDetailsPage /></>} />
-           <Route path="/login" element={<><Header /><LoginPage /></>} />
-           <Route path="/register" element={<><Header /><RegisterPage /></>} />
+           {/* Login et Register sans header */}
+           <Route path="/login" element={<LoginPage />} />
+           <Route path="/register" element={<RegisterPage />} />
 
            {/* Route Profil accessible à tout utilisateur connecté */}
            <Route path="/profile" element={<><Header /><ProfilePage /></>} />
@@ -44,12 +47,13 @@ export default function App() {
            </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
-         <Route index element={<div>Dashboard Admin (Stats globales)</div>} />
-         <Route path="dashboard" element={<div>Dashboard Admin</div>} />
+         <Route index element={<AdminDashboard />} />
+         <Route path="dashboard" element={<AdminDashboard />} />
          <Route path="roles" element={<RoleManagement />} />
          
           <Route path="users/:id" element={<UserDetail />} />
          <Route path="users" element={<UserManagement />} />
+         <Route path="create-organizer" element={<CreateOrganizerPage />} />
          
       </Route>
 

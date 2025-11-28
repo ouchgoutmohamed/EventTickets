@@ -85,11 +85,20 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Utilisateurs</h1>
 
+        <Button
+          onClick={() => navigate('/admin/create-organizer')}
+          className="bg-green-600 hover:bg-green-700"
+        >
+          Créer un organisateur
+        </Button>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Filtres */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-1">
           <div className="relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input

@@ -244,6 +244,40 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+/**
+ * Contrôleur pour créer un compte organisateur (Admin uniquement)
+ */
+const createOrganizer = async (req, res, next) => {
+  try {
+    const { nom, prenom, email, motDePasse, telephone, ville, pays } = req.body;
+
+    const result = await userService.createOrganizer({
+      nom,
+      prenom,
+      email,
+      motDePasse,
+      telephone,
+      ville,
+      pays,
+    });
+
+    return successResponse(
+      res,
+      201,
+      'Compte organisateur créé avec succès',
+      result
+    );
+  } catch (error) {
+    if (error.message === 'Un compte avec cet email existe déjà') {
+      return errorResponse(res, 400, error.message);
+    }
+    if (error.message.includes('n\'existe pas')) {
+      return errorResponse(res, 404, error.message);
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -255,4 +289,5 @@ module.exports = {
   getConnectionHistory,
   getUserConnectionHistory,
   deleteUser,
+  createOrganizer,
 };

@@ -4,6 +4,75 @@ const { hashPassword, comparePassword } = require('../utils/password.util');
 const prisma = new PrismaClient();
 
 /**
+ * Service pour créer un compte organisateur
+ */
+const createOrganizer = async (userData) => {
+  const { nom, prenom, email, motDePasse, telephone, ville, pays } = userData;
+
+  // Vérifier si l'email existe déjà
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new Error('Un compte avec cet email existe déjà');
+  }
+
+  // Récupérer le rôle organisateur (essayer différentes variantes)
+  let organizerRole = await prisma.role.findFirst({
+    where: {
+      OR: [
+        { nom: 'Organizator' },
+        { nom: 'Organisateur' },
+        { nom: 'ORGANISATEUR' },
+        { nom: 'organizer' },
+        { id: 2 }, // Par défaut, l'ID 2 est généralement pour les organisateurs
+      ],
+    },
+  });
+
+  // Si aucun rôle n'est trouvé, lister tous les rôles pour debug
+  if (!organizerRole) {
+    const allRoles = await prisma.role.findMany();
+    console.log('Rôles disponibles:', allRoles);
+    throw new Error(`Le rôle organisateur n'existe pas. Rôles disponibles: ${allRoles.map(r => r.nom).join(', ')}`);
+  }
+
+  // Hacher le mot de passe
+  const motDePasseHash = await hashPassword(motDePasse);
+
+  // Créer l'utilisateur avec son profil
+  const user = await prisma.user.create({
+    data: {
+      nom,
+      prenom,
+      email,
+      motDePasse: motDePasseHash,
+      roleId: organizerRole.id,
+      etat: 'Actif',
+      profil: {
+        create: {
+          telephone,
+          ville,
+          pays,
+        },
+      },
+    },
+    include: {
+      role: true,
+      profil: true,
+    },
+  });
+
+  // Retirer le mot de passe de la réponse
+  const { motDePasse: _, ...userWithoutPassword } = user;
+
+  return {
+    user: userWithoutPassword,
+  };
+};
+
+/**
  * Service pour récupérer tous les utilisateurs avec pagination
  */
 const getAllUsers = async (page = 1, limit = 10, filters = {}) => {
@@ -308,4 +377,5 @@ module.exports = {
   assignRole,
   getConnectionHistory,
   deleteUser,
+  createOrganizer,
 };

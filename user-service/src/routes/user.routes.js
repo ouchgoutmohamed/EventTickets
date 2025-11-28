@@ -26,6 +26,19 @@ router.get(
 );
 
 /**
+ * @route   POST /api/users/organizer
+ * @desc    Créer un compte organisateur
+ * @access  Privé - Admin uniquement
+ */
+console.log('📝 Route POST /organizer enregistrée');
+router.post(
+  '/organizer',
+  authenticate,
+  isAdmin,
+  userController.createOrganizer
+);
+
+/**
  * @route   GET /api/users/:id
  * @desc    Récupérer un utilisateur par ID
  * @access  Privé - Soi-même ou Admin

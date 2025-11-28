@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 // Import de nos contextes custom
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext'; // Notre wrapper Sonner
-import logo from '@/assets/logo-light.png'; 
+import logo from '@/assets/logo-dark.png'; 
 
 // Schéma de validation
 const loginSchema = z.object({

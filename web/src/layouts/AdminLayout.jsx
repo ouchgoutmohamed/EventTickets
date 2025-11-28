@@ -1,7 +1,16 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Shield, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Shield, LogOut, User, Settings, Home } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from '@/assets/logo-dark.png';
 
 const AdminLayout = () => {
@@ -26,7 +35,6 @@ const AdminLayout = () => {
       <aside className="w-64 bg-slate-900 text-white flex flex-col">
         <div className="p-6 flex items-center gap-2 border-b border-slate-700">
            <img src={logo} alt="Logo" className="h-8 w-auto brightness-0 invert" />
-           {/* <span className="font-bold text-lg">Admin Panel</span> */}
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
@@ -51,29 +59,74 @@ const AdminLayout = () => {
         </nav>
 
         <div className="p-4 border-t border-slate-700">
-            <div className="flex items-center gap-3 mb-4 px-2">
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">
-                    {user?.nom?.charAt(0) || 'A'}
-                </div>
-                <div className="overflow-hidden">
-                    <p className="text-sm font-medium truncate">{user?.prenom} {user?.nom}</p>
-                    <p className="text-xs text-slate-400">Administrateur</p>
-                </div>
-            </div>
-            <button 
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-red-400 hover:bg-slate-800 w-full px-4 py-2 rounded-lg transition"
-            >
-                <LogOut size={18} />
-                <span>Déconnexion</span>
-            </button>
+          <Link 
+            to="/"
+            className="flex items-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800 w-full px-4 py-2 rounded-lg transition"
+          >
+            <Home size={18} />
+            <span>Retour au site</span>
+          </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto p-8">
-        <Outlet />
-      </main>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header */}
+        <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {location.pathname === '/admin/dashboard' && 'Dashboard'}
+              {location.pathname === '/admin/users' && 'Gestion des Utilisateurs'}
+              {location.pathname.includes('/admin/users/') && 'Détails Utilisateur'}
+              {location.pathname === '/admin/roles' && 'Gestion des Rôles'}
+              {location.pathname === '/admin/create-organizer' && 'Créer un Organisateur'}
+            </h2>
+            <p className="text-sm text-gray-500">Panel d'administration</p>
+          </div>
+
+          {/* Profile Dropdown - Top Right */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+                <Avatar className="h-10 w-10 border-2 border-green-600">
+                  <AvatarImage src={user?.avatarUrl} alt={user?.prenom} />
+                  <AvatarFallback className="bg-green-100 text-green-700 font-semibold">
+                    {user?.prenom?.charAt(0) || user?.nom?.charAt(0) || 'A'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-left hidden md:block">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.prenom} {user?.nom}
+                  </p>
+                  <p className="text-xs text-gray-500">Administrateur</p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/admin/dashboard')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Paramètres</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Se déconnecter</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto p-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

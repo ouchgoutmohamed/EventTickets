@@ -9,6 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware de logging
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path}`);
+  next();
+});
+
 // CORS
 app.use((req, res, next) => {
   const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
