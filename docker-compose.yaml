@@ -10,10 +10,21 @@ services:
     volumes:
       - ./paymentAndNotificationService:/var/www/html
     depends_on:
+      - rabbitmq
       - mysql
     networks:
-      - backend
+      - event-tickets-app
     command: ["sh", "/var/www/html/entrypoint.sh"]
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    networks:
+      - event-tickets-app
 
   mysql:
     image: mysql:8
@@ -29,10 +40,10 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - backend
+      - event-tickets-app
 
 networks:
-  backend:
+  event-tickets-app:
 
 volumes:
   mysql_data:
