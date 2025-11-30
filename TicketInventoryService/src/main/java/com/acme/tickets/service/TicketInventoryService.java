@@ -176,10 +176,41 @@ public class TicketInventoryService {
     }
 
     /**
+     * Crée ou met à jour l'inventaire pour un événement.
+     *
+     * @param request Détails de l'inventaire à créer
+     * @return CreateInventoryResponse avec les détails de l'inventaire créé
+     */
+    @Transactional
+    public CreateInventoryResponse createOrUpdateInventory(CreateInventoryRequest request) {
+        logger.info("Création/Mise à jour de l'inventaire pour l'événement {}", request.eventId());
+
+        Inventory inventory = inventoryRepository.findById(request.eventId())
+            .map(existing -> {
+                existing.setTotal(request.total());
+                logger.info("Mise à jour de l'inventaire existant pour l'événement {}", request.eventId());
+                return existing;
+            })
+            .orElseGet(() -> {
+                logger.info("Création d'un nouvel inventaire pour l'événement {}", request.eventId());
+                return new Inventory(request.eventId(), request.total());
+            });
+
+        inventory = inventoryRepository.save(inventory);
+
+        return new CreateInventoryResponse(
+            inventory.getEventId(),
+            inventory.getTotal(),
+            inventory.getAvailable(),
+            "Inventaire créé/mis à jour avec succès"
+        );
+    }
+
+    /**
      * Consulte la disponibilité des tickets pour un événement.
      *
      * @param eventId Identifiant de l'événement
-     * @return Informations de disponibilité
+     * @return AvailabilityResponse avec total et available
      * @throws InventoryNotFoundException Si l'inventaire n'existe pas
      */
     @Transactional(readOnly = true)

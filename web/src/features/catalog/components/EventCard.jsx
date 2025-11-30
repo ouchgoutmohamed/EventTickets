@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Calendar, Bookmark, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, Calendar, Bookmark, MapPin, Ticket } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { getStatusConfig } from '../../../utils/statusHelpers';
 
@@ -32,6 +33,12 @@ const EventCard = ({ event }) => {
   };
 
   const categoryName = event.category?.categoryType || 'Événement';
+
+  // Handler pour le clic sur le bouton de réservation
+  const handleReserveClick = (e) => {
+    e.stopPropagation(); // Empêche la propagation au card
+    navigate(`/events/${event.id}`, { state: { openReservation: true } });
+  };
 
   return (
     <Card 
@@ -89,10 +96,19 @@ const EventCard = ({ event }) => {
                 </div>
             </div>
             
-            {/* Badge Stock seulement si ouvert */}
-            {event.status === 'OPEN_FOR_BOOKING' && (
+            {/* Bouton Réserver ou Badge Stock */}
+            {event.status === 'OPEN_FOR_BOOKING' ? (
+                <Button 
+                    size="sm" 
+                    className="bg-green-600 hover:bg-green-700 text-white gap-1.5 shadow-sm"
+                    onClick={handleReserveClick}
+                >
+                    <Ticket size={14} />
+                    Réserver
+                </Button>
+            ) : (
                 <span className={`text-xs px-2 py-1 rounded-full ${remainingTickets < 20 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {remainingTickets > 0 ? `${remainingTickets} dispo` : 'Complet'}
+                    {remainingTickets > 0 ? `${remainingTickets} dispo` : statusConfig.label}
                 </span>
             )}
         </div>

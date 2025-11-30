@@ -13,26 +13,24 @@ spring:
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    spring:
-      application:
-        name: ticket-inventory-service
-
-      # Default profile uses MySQL (prod-like)
-      datasource:
-        url: jdbc:mysql://localhost:3306/ticket_inventory?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-        username: root
-        password:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        hikari:
-          maximum-pool-size: 10
-          minimum-idle: 5
-          connection-timeout: 30000
-          idle-timeout: 600000
-          max-lifetime: 1800000
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  jpa:
+    properties:
+      hibernate:
         jdbc:
           batch_size: 20
         order_inserts: true
         order_updates: true
+      jakarta:
+        persistence:
+          lock:
+            timeout: 5000  # 5 seconds lock timeout
     open-in-view: false  # Évite les lazy loading hors transaction
 
   # ========================================

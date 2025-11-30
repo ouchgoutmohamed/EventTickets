@@ -12,6 +12,8 @@ import OrganizerDashboard from './pages/OrganizerDashboard'
 import MyEventsPage from './pages/MyEventsPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
+import PaymentPage from './pages/PaymentPage';
+import MyReservationsPage from './pages/MyReservationsPage';
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import RoleManagement from './features/auth/components/RoleManagement';
@@ -34,6 +36,10 @@ export default function App() {
 
            {/* Route Profil accessible à tout utilisateur connecté */}
            <Route path="/profile" element={<><Header /><ProfilePage /></>} />
+
+           {/* Routes Réservation et Paiement */}
+           <Route path="/payment/:reservationId" element={<><Header /><PaymentPage /></>} />
+           <Route path="/my-reservations" element={<><Header /><MyReservationsPage /></>} />
 
            {/* === Routes Organisateur (Avec Layout dédié) === */}
            <Route path="/organizer" element={<OrganizerLayout />}>
