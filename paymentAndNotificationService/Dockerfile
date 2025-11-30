@@ -1,13 +1,13 @@
 # ---------- 1. Use PHP with necessary extensions ----------
-FROM php:8.3-fpm
+FROM php:8.4.15-fpm
 
 # Set working directory
 WORKDIR /var/www/html
 
 # ---------- 2. Install system dependencies ----------
 RUN apt-get update \
-    && apt-get install -y git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo_mysql mysqli mbstring zip exif pcntl bcmath gd \
+    && apt-get install -y git zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev librabbitmq-dev libssl-dev\
+    && docker-php-ext-install pdo_mysql mysqli mbstring zip exif pcntl bcmath gd sockets\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
