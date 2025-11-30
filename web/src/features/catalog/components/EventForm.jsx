@@ -207,11 +207,12 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <Card className="w-full border-none shadow-none sm:border sm:shadow-sm ">
-      <form onSubmit={handleSubmit} className="space-y-8 p-0 sm:p-6">
+    <Card className="w-full shadow-lg bg-white">
+      <form onSubmit={handleSubmit} className="space-y-8 p-6">
         {/* Section Informations Générales */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-2 py-2 px-2 bg-green-600 rounded-md text-white">
+          <h3 className="text-lg font-semibold pb-3 flex items-center gap-2 border-b">
+            <div className="w-1 h-6 bg-green-600 rounded"></div>
             Informations Générales
           </h3>
           <div className="grid gap-4">
@@ -296,7 +297,7 @@ const handleSubmit = async (e) => {
             </Select>
           </div>
 
-          <div className="space-y-3 p-4 bg-gray-50 rounded-lg border">
+          <div className="space-y-3 p-4 bg-white rounded-lg border">
             <h4 className="font-medium text-sm">Localisation</h4>
             <Input
               placeholder="Nom de la salle (ex: Grand Théâtre)"

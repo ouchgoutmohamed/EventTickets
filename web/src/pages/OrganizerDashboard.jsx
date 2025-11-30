@@ -22,20 +22,19 @@ const OrganizerDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Revenu Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.revenue.toLocaleString()} MAD</div>
-            <p className="text-xs text-gray-500">+20.1% par rapport au mois dernier</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Billets Vendus</CardTitle>
-            <TicketIcon className="h-4 w-4 text-blue-600" />
+            <TicketIcon className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.ticketsSold}</div>
@@ -43,9 +42,9 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Événements Actifs</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-600" />
+            <Calendar className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalEvents}</div>
@@ -53,9 +52,9 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Taux de Remplissage</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-600" />
+            <TrendingUp className="w-4 h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">85%</div>
@@ -63,10 +62,6 @@ const OrganizerDashboard = () => {
         </Card>
       </div>
       
-      {/* Zone pour afficher les derniers événements ou graphiques */}
-      <div className="bg-white p-6 rounded-xl border shadow-sm h-64 flex items-center justify-center text-gray-400">
-        Graphique des ventes (À implémenter avec Recharts)
-      </div>
     </div>
   );
 };

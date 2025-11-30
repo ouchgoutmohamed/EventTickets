@@ -49,7 +49,7 @@ const createOrganizer = async (userData) => {
       email,
       motDePasse: motDePasseHash,
       roleId: organizerRole.id,
-      etat: 'Actif',
+      etat: 'actif',
       profil: {
         create: {
           telephone,

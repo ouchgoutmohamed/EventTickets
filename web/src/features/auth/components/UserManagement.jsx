@@ -128,7 +128,7 @@ const UserManagement = () => {
         </div>
       </div>
 
-      <Card>
+      <Card className="shadow-lg">
         <CardContent className="p-0">
            {/* 2. Utilisation du Spinner ici */}
            {loading ? (
@@ -140,19 +140,20 @@ const UserManagement = () => {
            ) : users.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">Aucun utilisateur trouvé</div>
            ) : (
+          <div className="overflow-hidden rounded-lg border">
           <Table>
-            <TableHeader className="bg-slate-900 text-white">
-              <TableRow>
-                <TableHead>Utilisateur</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Rôle</TableHead>
-                <TableHead>État</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+            <TableHeader>
+              <TableRow className="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-900 hover:to-slate-800">
+                <TableHead className="text-white font-semibold">Utilisateur</TableHead>
+                <TableHead className="text-white font-semibold">Email</TableHead>
+                <TableHead className="text-white font-semibold">Rôle</TableHead>
+                <TableHead className="text-white font-semibold">État</TableHead>
+                <TableHead className="text-right text-white font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((u) => (
-                <TableRow key={u.id}>
+                <TableRow key={u.id} className="hover:bg-gray-50 transition-colors">
                   <TableCell className="font-medium">
                     {u.prenom} {u.nom}
                   </TableCell>
@@ -186,7 +187,7 @@ const UserManagement = () => {
                           <DropdownMenuItem
                             onClick={() => handleStatusChange(u.id, "activate")}
                           >
-                            <CheckCircle className="mr-2 h-4 w-4 text-green-600" />{" "}
+                            <CheckCircle className="w-4 h-4 mr-2" />
                             Activer
                           </DropdownMenuItem>
                         )}
@@ -211,6 +212,7 @@ const UserManagement = () => {
               ))}
             </TableBody>
           </Table>
+          </div>
       )}
         </CardContent>
       </Card>

@@ -147,7 +147,7 @@ const AdminDashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Dashboard Administrateur
+          Tableau de bord
         </h1>
         <p className="mt-2 text-gray-500">
           Bienvenue, {user?.prenom} {user?.nom}. Voici un aperçu de la plateforme.
@@ -155,29 +155,46 @@ const AdminDashboard = () => {
       </div>
 
       {/* Statistics Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="transition-shadow duration-200 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </CardTitle>
-                <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                <p className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                  <TrendingUp className="w-3 h-3" />
-                  {stat.trend}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Total Utilisateurs</CardTitle>
+            <Users className="w-4 h-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Événements Actifs</CardTitle>
+            <Calendar className="w-4 h-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalEvents}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Revenu Total</CardTitle>
+            <DollarSign className="w-4 h-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString()} MAD</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Organisateurs Actifs</CardTitle>
+            <UserCheck className="w-4 h-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeOrganizers}</div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
