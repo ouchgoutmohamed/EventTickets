@@ -62,7 +62,7 @@ const Header = () => {
                 <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>Profil</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/my-tickets')}>Mes Tickets</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-reservations')}>Mes Réservations</DropdownMenuItem>
                 {user.role === 'ADMIN' && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>Dashboard Admin</DropdownMenuItem>
                 )}
