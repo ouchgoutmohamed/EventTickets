@@ -333,7 +333,14 @@ const EventDetailsPage = () => {
                                       <div className="flex-1">
                                           <div className="flex items-center gap-2">
                                               <div className="font-bold text-gray-800">{ticket.name}</div>
-                                              <AvailabilityBadge eventId={id} enablePolling={true} />
+                                              {/* Badge basé sur la quantité du ticket */}
+                                              {ticket.quantity <= 0 ? (
+                                                <span className="px-2 py-0.5 text-xs font-medium rounded bg-red-100 text-red-700 border border-red-200">Épuisé</span>
+                                              ) : ticket.quantity <= 10 ? (
+                                                <span className="px-2 py-0.5 text-xs font-medium rounded bg-orange-100 text-orange-700 border border-orange-200">Plus que {ticket.quantity}</span>
+                                              ) : (
+                                                <span className="px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-700 border border-green-200">Disponible</span>
+                                              )}
                                           </div>
                                           <div className="text-sm text-green-700 font-medium">{ticket.price} MAD</div>
                                           <div className="text-xs text-gray-400 mt-0.5">{ticket.quantity} restants</div>

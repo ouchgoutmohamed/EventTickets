@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import Header from './components/layout/Header';
 import OrganizerLayout from './layouts/OrganizerLayout';
 import OrganizerDashboard from './pages/OrganizerDashboard'
+import OrganizerTicketsPage from './pages/OrganizerTicketsPage';
 import MyEventsPage from './pages/MyEventsPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
@@ -45,7 +46,7 @@ export default function App() {
               <Route path="profile" element={<ProfilePage />} />
               <Route path="create-event" element={<CreateEventPage />} />
               <Route path="my-events" element={<MyEventsPage />} /> 
-              <Route path="tickets" element={<div>Page Tickets (À faire)</div>} />
+              <Route path="tickets" element={<OrganizerTicketsPage />} />
               <Route path="edit-event/:id" element={<EditEventPage />} />
            </Route>
 

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service de gestion des réservations et inventaires de tickets.
@@ -32,16 +33,19 @@ public class TicketInventoryService {
     private final ReservationRepository reservationRepository;
     private final TicketRepository ticketRepository;
     private final TicketInventoryProperties properties;
+    private final com.acme.tickets.integration.EventCatalogClient eventCatalogClient;
 
     public TicketInventoryService(
             InventoryRepository inventoryRepository,
             ReservationRepository reservationRepository,
             TicketRepository ticketRepository,
-            TicketInventoryProperties properties) {
+            TicketInventoryProperties properties,
+            com.acme.tickets.integration.EventCatalogClient eventCatalogClient) {
         this.inventoryRepository = inventoryRepository;
         this.reservationRepository = reservationRepository;
         this.ticketRepository = ticketRepository;
         this.properties = properties;
+        this.eventCatalogClient = eventCatalogClient;
     }
 
     /**
@@ -69,25 +73,28 @@ public class TicketInventoryService {
             }
         }
 
-        // Récupération de l'inventaire avec verrou
-        Inventory inventory = getInventoryWithLock(request.eventId());
+        // Règle métier: limite par catégorie (peut ajuster la quantité demandée)
+        int effectiveQuantity = applyCategoryLimit(request.eventId(), request.quantity());
+
+        // Récupération de l'inventaire avec verrou, initialisation paresseuse si absent
+        Inventory inventory = getOrInitInventoryWithLock(request.eventId());
 
         // Vérification du stock disponible
-        validateSufficientStock(inventory, request.quantity());
+        validateSufficientStock(inventory, effectiveQuantity);
 
         // Création de la réservation
         Instant expiresAt = calculateExpirationTime();
         Reservation reservation = new Reservation(
             request.eventId(),
             request.userId(),
-            request.quantity(),
+            effectiveQuantity,
             ReservationStatus.PENDING
         );
         reservation.setHoldExpiresAt(expiresAt);
         reservation.setIdempotencyKey(idempotencyKey);
 
         // Mise à jour de l'inventaire avec vérification défensive
-        decrementStock(inventory, request.quantity());
+        decrementStock(inventory, effectiveQuantity);
         inventoryRepository.save(inventory);
 
         // Sauvegarde de la réservation
@@ -175,36 +182,7 @@ public class TicketInventoryService {
         return new ReleaseResponse(ReservationStatus.CANCELED.name());
     }
 
-    /**
-     * Crée ou met à jour l'inventaire pour un événement.
-     *
-     * @param request Détails de l'inventaire à créer
-     * @return CreateInventoryResponse avec les détails de l'inventaire créé
-     */
-    @Transactional
-    public CreateInventoryResponse createOrUpdateInventory(CreateInventoryRequest request) {
-        logger.info("Création/Mise à jour de l'inventaire pour l'événement {}", request.eventId());
-
-        Inventory inventory = inventoryRepository.findById(request.eventId())
-            .map(existing -> {
-                existing.setTotal(request.total());
-                logger.info("Mise à jour de l'inventaire existant pour l'événement {}", request.eventId());
-                return existing;
-            })
-            .orElseGet(() -> {
-                logger.info("Création d'un nouvel inventaire pour l'événement {}", request.eventId());
-                return new Inventory(request.eventId(), request.total());
-            });
-
-        inventory = inventoryRepository.save(inventory);
-
-        return new CreateInventoryResponse(
-            inventory.getEventId(),
-            inventory.getTotal(),
-            inventory.getAvailable(),
-            "Inventaire créé/mis à jour avec succès"
-        );
-    }
+    // Méthode de création/mise à jour d'inventaire supprimée (découplage). L'initialisation est gérée paresseusement.
 
     /**
      * Consulte la disponibilité des tickets pour un événement.
@@ -217,7 +195,8 @@ public class TicketInventoryService {
     public AvailabilityResponse getAvailability(Long eventId) {
         logger.debug("Consultation de la disponibilité pour l'événement {}", eventId);
 
-        Inventory inventory = getInventoryOrThrow(eventId);
+        Inventory inventory = inventoryRepository.findById(eventId)
+            .orElseGet(() -> initializeInventoryFromEvent(eventId));
 
         return new AvailabilityResponse(
             eventId,
@@ -269,6 +248,61 @@ public class TicketInventoryService {
     private Inventory getInventoryWithLock(Long eventId) {
         return inventoryRepository.findByIdWithLock(eventId)
             .orElseThrow(() -> new InventoryNotFoundException(eventId));
+    }
+
+    /**
+     * Récupère l'inventaire avec verrou, et l'initialise s'il n'existe pas en se basant
+     * sur les informations de l'événement (catégorie, ticketTypes) via EventCatalog.
+     */
+    private Inventory getOrInitInventoryWithLock(Long eventId) {
+        return inventoryRepository.findByIdWithLock(eventId)
+            .orElseGet(() -> initializeInventoryFromEvent(eventId));
+    }
+
+    private Inventory initializeInventoryFromEvent(Long eventId) {
+        logger.info("Initialisation paresseuse de l'inventaire pour eventId={}", eventId);
+        Map<String, Object> event = eventCatalogClient.getEventById(eventId);
+
+        // Calcul du total à partir des ticketTypes si disponibles
+        int total = 0;
+        Object ticketTypesObj = event.get("tickets");
+        if (ticketTypesObj instanceof List<?> list) {
+            for (Object item : list) {
+                if (item instanceof Map<?, ?> tt) {
+                    Object qty = tt.get("quantity");
+                    if (qty instanceof Number n) total += n.intValue();
+                }
+            }
+        }
+
+        Inventory inventory = new Inventory(eventId, total);
+        return inventoryRepository.save(inventory);
+    }
+
+    private int applyCategoryLimit(Long eventId, int requestedQuantity) {
+        Map<String, Object> event = eventCatalogClient.getEventById(eventId);
+        String category = null;
+        Object categoryObj = event.get("category");
+        if (categoryObj instanceof Map<?, ?> c) {
+            Object ct = c.get("categoryType");
+            if (ct instanceof String s) category = s;
+        }
+
+        int maxAllowed = properties.getMaxTicketsPerReservation();
+        if (category != null) {
+            Integer specific = properties.getCategoryMaxPerReservation().get(category.toUpperCase());
+            if (specific != null && specific > 0) {
+                maxAllowed = specific;
+            }
+        }
+
+        if (requestedQuantity > maxAllowed) {
+            logger.info("Quantité demandée {} > limite {} pour catégorie {}: ajustement automatique",
+                    requestedQuantity, maxAllowed, category);
+            return maxAllowed;
+        }
+
+        return requestedQuantity;
     }
 
     /**
@@ -351,7 +385,8 @@ public class TicketInventoryService {
         return new ReserveResponse(
             reservation.getId(),
             reservation.getStatus().name(),
-            reservation.getHoldExpiresAt()
+            reservation.getHoldExpiresAt(),
+            reservation.getQuantity()
         );
     }
 

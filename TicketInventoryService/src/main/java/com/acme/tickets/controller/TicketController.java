@@ -159,37 +159,7 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * ADMIN: Créer ou mettre à jour l'inventaire pour un événement.
-     * Endpoint administratif pour initialiser le stock de tickets.
-     * 
-     * @param request Les détails de l'inventaire (eventId, total)
-     * @return CreateInventoryResponse avec les détails de l'inventaire créé
-     */
-    @PostMapping("/inventory")
-    @Operation(
-        summary = "Créer/Mettre à jour l'inventaire",
-        description = "Crée ou met à jour l'inventaire de tickets pour un événement. " +
-                      "Si l'inventaire existe déjà, met à jour le total.",
-        security = @SecurityRequirement(name = "bearerAuth"),
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Inventaire créé/mis à jour avec succès",
-                content = @Content(schema = @Schema(implementation = CreateInventoryResponse.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Validation échouée")
-        }
-    )
-    public ResponseEntity<CreateInventoryResponse> createInventory(
-            @Valid @RequestBody CreateInventoryRequest request) {
-        
-        logger.info("Création/Mise à jour de l'inventaire: eventId={}, total={}", 
-            request.eventId(), request.total());
-        
-        CreateInventoryResponse response = ticketInventoryService.createOrUpdateInventory(request);
-        return ResponseEntity.ok(response);
-    }
+    // Endpoint de création/mise à jour d'inventaire supprimé (découplage).
 
     /**
      * INT-020: Consulter les réservations et achats d'un utilisateur.

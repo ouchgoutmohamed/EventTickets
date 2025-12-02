@@ -115,6 +115,29 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Gère les dépassements de limite par catégorie (400 Bad Request).
+     */
+    @ExceptionHandler(CategoryLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryLimitExceeded(
+            CategoryLimitExceededException ex, WebRequest request) {
+
+        logger.warn("Category limit exceeded: {}", ex.getMessage());
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Category Limit Exceeded",
+                ex.getMessage(),
+                Map.of(
+                    "category", ex.getCategory(),
+                    "requested", ex.getRequested(),
+                    "maxAllowed", ex.getMaxAllowed()
+                )
+            ));
+    }
+
+    /**
      * Gère les réservations expirées (422 Unprocessable Entity).
      */
     @ExceptionHandler(ReservationExpiredException.class)
