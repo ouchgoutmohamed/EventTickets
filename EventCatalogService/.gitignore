@@ -31,3 +31,30 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+.env
+
+### Logs ###
+*.log
+logs/
+
+### JaCoCo Coverage ###
+jacoco.exec
+*.exec
+
+### Snyk ###
+.snyk
+snyk-report.json
+
+### JMeter ###
+*.jtl
+jmeter-report/
+
+### Temporary Files ###
+*.tmp
+*.bak
+*.swp
+*~
+
+.ps1

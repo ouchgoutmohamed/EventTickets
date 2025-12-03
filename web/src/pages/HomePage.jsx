@@ -153,7 +153,9 @@ const fetchEvents = async () => {
             </>
         )}
       </div>
+      
     </div>
+    
   );
 };
 
