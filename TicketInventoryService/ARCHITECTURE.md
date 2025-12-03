@@ -1,152 +1,105 @@
-# Ticket Inventory Service - Architecture & Conventions
+# Ticket Inventory Service - Architecture
 
-## 📐 Architecture
-
-### Couches
+## 📐 Architecture en Couches
 
 ```
-┌─────────────────────────────────────┐
-│       Controller Layer              │  ← Orchestration REST (SRP)
-│   @RestController, @RequestMapping  │
-└───────────────┬─────────────────────┘
-                ↓
-┌─────────────────────────────────────┐
-│        Service Layer                │  ← Logique métier
-│   @Service, @Transactional          │
-└───────────────┬─────────────────────┘
-                ↓
-┌─────────────────────────────────────┐
-│      Repository Layer               │  ← Accès données
-│   JpaRepository, @Repository        │
-└───────────────┬─────────────────────┘
-                ↓
-┌─────────────────────────────────────┐
-│         Domain Layer                │  ← Entités JPA
-│   @Entity, @Table                   │
-└─────────────────────────────────────┘
+┌───────────────────────────────────────┐
+│       Controller (@RestController)    │ ← REST API
+├───────────────────────────────────────┤
+│       Service (@Service)              │ ← Logique métier
+├───────────────────────────────────────┤
+│       Repository (JpaRepository)      │ ← Accès données
+├───────────────────────────────────────┤
+│       Domain (@Entity)                │ ← Entités JPA
+├───────────────────────────────────────┤
+│       Integration (RestClient)        │ ← Services externes
+└───────────────────────────────────────┘
 ```
 
-### Packages
+## 📁 Structure des Packages
 
 ```
 com.acme.tickets/
-├── controller/          # Endpoints REST
-├── service/             # Logique métier
+├── controller/      # Endpoints REST
+├── service/         # Logique métier
 ├── domain/
-│   ├── entity/         # Entités JPA
-│   ├── enums/          # Énumérations
-│   └── repository/     # Repositories Spring Data
-├── dto/                # DTOs (records)
-├── exception/          # Exceptions métier
-└── config/             # Configuration Spring
+│   ├── entity/     # Inventory, Reservation, Ticket
+│   ├── enums/      # ReservationStatus
+│   └── repository/ # JPA Repositories
+├── dto/            # Records (Request/Response)
+├── exception/      # Exceptions métier
+├── config/         # Configuration Spring
+└── integration/    # EventCatalogClient
 ```
 
-## 🎯 Principes Appliqués
+## 🎯 Principes SOLID
 
-### SOLID
+| Principe | Application |
+|----------|-------------|
+| **SRP** | Controller = orchestration, Service = métier |
+| **OCP** | Interfaces repository extensibles |
+| **DIP** | Injection constructeur (final fields) |
 
-- **SRP**: Contrôleurs = orchestration, Services = logique métier
-- **OCP**: Interfaces repository extensibles
-- **DIP**: Injection par constructeur (final fields)
-
-### Clean Code
-
-- Records pour DTOs immutables
-- Nommage explicite (`ReservationNotFoundException`)
-- Constantes extraites (`RESERVATION_HOLD_MINUTES`)
-- Logs structurés (SLF4J)
-
-### Spring Boot 3
-
-- Jakarta Validation (`@Valid`, `@NotNull`)
-- Injection par constructeur (pas `@Autowired`)
-- Configuration YAML
-- OpenAPI/Swagger intégré
-
-## 🔒 Concurrence
+## 🔒 Gestion de la Concurrence
 
 ### Verrouillage Optimiste
-
 ```java
 @Version
-private Integer version;  // Dans Inventory
+private Integer version;  // Inventory
 ```
 
 ### Verrouillage Pessimiste
-
 ```java
 @Lock(LockModeType.PESSIMISTIC_WRITE)
-Optional<Inventory> findByIdWithLock(Long eventId);
+Optional<Inventory> findByEventIdWithLock(Long eventId);
 ```
 
 ## 🔄 Idempotence
 
-Les endpoints POST `/reserve` supportent le header `Idempotency-Key`:
-
-```http
-POST /tickets/reserve
-Idempotency-Key: uuid-abc-123
-```
-
-## ⚠️ TODOs Production
-
-### Critique
-
-- [ ] Implémenter JWT/OAuth2 (voir `SecurityConfig`)
-- [ ] Activer rate limiting
-- [ ] Utiliser Flyway/Liquibase (remplacer `ddl-auto=update`)
-- [ ] Configurer monitoring (Actuator + Prometheus)
-- [ ] Implémenter circuit breaker (Resilience4j)
-
-### Recommandé
-
-- [ ] Ajouter cache Redis (disponibilités)
-- [ ] Implémenter messaging (événements réservation)
-- [ ] Tests d'intégration (@SpringBootTest)
-- [ ] Health checks détaillés
-- [ ] Métriques métier (réservations/min)
+Header `X-Idempotency-Key` pour éviter les doublons de réservation.
 
 ## 🧪 Tests
 
-```bash
-# TODO: Ajouter des tests
-mvn test
-```
-
-### Exemples à couvrir
-
-```java
-@SpringBootTest
-class TicketInventoryServiceTest {
-    // Test concurrence réservations
-    // Test expiration automatique
-    // Test idempotence
-}
-```
+| Type | Outil | Commande |
+|------|-------|----------|
+| Unitaires | JUnit 5, Mockito | `mvn test` |
+| Intégration | @SpringBootTest | `mvn verify` |
+| Couverture | JaCoCo | `target/site/jacoco/` |
+| Qualité | SonarQube | `mvn sonar:sonar` |
+| Charge | JMeter | `jmeter/*.jmx` |
 
 ## 📊 Base de Données
 
-### Tables
+| Table | Description |
+|-------|-------------|
+| `inventory` | Stock par événement (event_id PK) |
+| `reservation` | Réservations utilisateurs |
+| `ticket` | Tickets confirmés |
 
-- `inventory`: Stock par événement (event_id PK)
-- `reservation`: Réservations utilisateurs
-- `ticket`: Tickets confirmés
-
-### Indexes
-
-- `idx_reservation_user_id`: Requêtes utilisateur
-- `idx_reservation_status`: Nettoyage expirées
-- `idx_reservation_idempotency_key`: Idempotence
+### Index
+- `idx_reservation_user_id`
+- `idx_reservation_status`
+- `idx_reservation_idempotency_key`
 
 ## 🚀 Démarrage
 
 ```bash
-# Avec Maven
-./mvnw spring-boot:run
+# Maven
+mvn spring-boot:run
 
-# Avec Docker (TODO)
+# Docker
 docker-compose up
 ```
+
+## ⚠️ TODOs Production
+
+- [ ] JWT/OAuth2 authentication
+- [ ] Rate limiting
+- [ ] Flyway migrations
+- [ ] Circuit breaker (Resilience4j)
+- [ ] Cache Redis
+- [ ] Messaging (Kafka/RabbitMQ)
+
 
 **Swagger UI**: http://localhost:8082/swagger-ui.html
 
