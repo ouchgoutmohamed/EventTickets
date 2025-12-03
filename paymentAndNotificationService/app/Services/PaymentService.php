@@ -39,19 +39,21 @@ class PaymentService
                 ]);
             }
 
-            $connection = new AMQPStreamConnection(env("RABBITMQ_SERVICE_URL"), 5672, 'guest', 'guest');
-            $channel = $connection->channel();
+            if (!app()->environment('testing')) {
+                $connection = new AMQPStreamConnection(config("rabbitmq"), 5672, 'guest', 'guest');
+                $channel = $connection->channel();
 
-            $channel->queue_declare('payment', false, true, false, false);
+                $channel->queue_declare('payment', false, true, false, false);
 
-            $msg = $success ? PaymentStatus::SUCCESS->value : PaymentStatus::FAILED->value;
-            $msg = new AMQPMessage($msg, [
-                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
-            ]);
-            $channel->basic_publish($msg, '', 'status');
+                $msg = $success ? PaymentStatus::SUCCESS->value : PaymentStatus::FAILED->value;
+                $msg = new AMQPMessage($msg, [
+                    'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
+                ]);
+                $channel->basic_publish($msg, '', 'status');
 
-            $channel->close();
-            $connection->close();
+                $channel->close();
+                $connection->close();
+            }
 
             return $payment;
         } catch (Exception $e) {
@@ -77,7 +79,7 @@ class PaymentService
         return $payment;
     }
 
-    public function getUserPayments(int $userId)
+    public function getUserPayments(string $userId)
     {
         return Payment::where('user_id', $userId)->latest()->get();
     }
