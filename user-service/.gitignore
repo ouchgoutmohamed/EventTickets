@@ -23,7 +23,4 @@ Thumbs.db
 dist/
 build/
 
-# Prisma
-prisma/migrations/
-
 /src/generated/prisma

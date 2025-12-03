@@ -5,7 +5,6 @@ WORKDIR /app
 
 # Copier les fichiers package
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Installer les dépendances
 RUN npm ci --only=production
