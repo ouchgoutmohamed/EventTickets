@@ -22,7 +22,7 @@ import java.util.Collections;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final String SECRET = "dev_secret_key_changez_moi_en_production_2024"; // doit correspondre à JWT_SECRET du service Node.js
+    private final String SECRET = "uneCleSuperSecreteDe32Caractres1234"; // doit correspondre à JWT_SECRET du service Node.js
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

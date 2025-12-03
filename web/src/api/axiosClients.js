@@ -3,8 +3,8 @@ import axios from 'axios';
 // 1. Définition des URLs de base (Idéalement via .env)
 const URLS = {
   API_GATEWAY: import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:3000',
-  USERS: import.meta.env.VITE_API_USER_URL || 'http://localhost:3001/api',
-  CATALOG: import.meta.env.VITE_API_CATALOG_URL || 'http://localhost:8080/events',
+  USERS: import.meta.env.VITE_API_USER_URL || 'http://localhost:4001/api',
+  CATALOG: import.meta.env.VITE_API_CATALOG_URL || 'http://localhost:8080',
   TICKETS: import.meta.env.VITE_API_TICKET_URL || 'http://localhost:8083/api',  // À adapter
   //PAYMENTS: import.meta.env.VITE_API_PAYMENT_URL || 'http://localhost:8084/api' // À adapter
 };
