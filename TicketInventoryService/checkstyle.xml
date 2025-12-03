@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle configuration for TicketInventoryService
+    Based on Google Java Style with some customizations for Spring Boot
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Exclude generated and test files -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value=".*[\\/]target[\\/].*"/>
+    </module>
+
+    <!-- File Length -->
+    <module name="FileLength">
+        <property name="max" value="500"/>
+        <property name="severity" value="warning"/>
+    </module>
+
+    <!-- No Tab Characters -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Trailing Whitespace -->
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="minimum" value="0"/>
+        <property name="maximum" value="0"/>
+        <property name="message" value="Line has trailing spaces."/>
+        <property name="severity" value="info"/>
+    </module>
+
+    <!-- Line length (Checker level) -->
+    <module name="LineLength">
+        <property name="max" value="150"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+
+    <!-- TreeWalker for Java-specific checks -->
+    <module name="TreeWalker">
+        <!-- ========== NAMING CONVENTIONS ========== -->
+        
+        <!-- Class names: UpperCamelCase -->
+        <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Type name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- Method names: lowerCamelCase -->
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- Variable names: lowerCamelCase -->
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- Member variable names: lowerCamelCase -->
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- Parameter names: lowerCamelCase -->
+        <module name="ParameterName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- Constant names: UPPER_SNAKE_CASE -->
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+        </module>
+
+        <!-- Package names: lowercase -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+            <message key="name.invalidPattern" value="Package name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <!-- ========== IMPORTS ========== -->
+        
+        <!-- No star imports -->
+        <module name="AvoidStarImport">
+            <property name="severity" value="warning"/>
+        </module>
+
+        <!-- No redundant imports -->
+        <module name="RedundantImport"/>
+
+        <!-- No unused imports -->
+        <module name="UnusedImports"/>
+
+        <!-- Static imports last -->
+        <module name="ImportOrder">
+            <property name="groups" value="java,javax,org,com"/>
+            <property name="ordered" value="true"/>
+            <property name="separated" value="true"/>
+            <property name="option" value="bottom"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+            <property name="severity" value="info"/>
+        </module>
+
+        <!-- ========== CODE STRUCTURE ========== -->
+        
+        <!-- One top-level class per file -->
+        <module name="OneTopLevelClass"/>
+
+        <!-- Modifier order -->
+        <module name="ModifierOrder"/>
+
+        <!-- Redundant modifiers -->
+        <module name="RedundantModifier"/>
+
+        <!-- ========== BLOCK CHECKS ========== -->
+        
+        <!-- Empty blocks -->
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+            <property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+        </module>
+
+        <!-- Left curly brace at end of line -->
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+        </module>
+
+        <!-- Right curly brace placement -->
+        <module name="RightCurly">
+            <property name="option" value="same"/>
+            <property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE"/>
+        </module>
+
+        <!-- Need braces for if/else/for/while/do -->
+        <module name="NeedBraces">
+            <property name="allowSingleLineStatement" value="true"/>
+        </module>
+
+        <!-- ========== WHITESPACE ========== -->
+        
+        <!-- Generic whitespace -->
+        <module name="GenericWhitespace">
+            <message key="ws.followed" value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+            <message key="ws.preceded" value="GenericWhitespace ''{0}'' is preceded by whitespace."/>
+            <message key="ws.illegalFollow" value="GenericWhitespace ''{0}'' should be followed by whitespace."/>
+            <message key="ws.notPreceded" value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+        </module>
+
+        <!-- No whitespace after certain tokens -->
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP"/>
+        </module>
+
+        <!-- No whitespace before certain tokens -->
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, ELLIPSIS"/>
+        </module>
+
+        <!-- Whitespace around operators -->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyLoops" value="true"/>
+            <property name="severity" value="info"/>
+        </module>
+
+        <!-- ========== SIZE LIMITS ========== -->
+        
+        <!-- Method length -->
+        <module name="MethodLength">
+            <property name="max" value="80"/>
+            <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Parameter number -->
+        <module name="ParameterNumber">
+            <property name="max" value="8"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
+            <property name="severity" value="warning"/>
+        </module>
+
+        <!-- ========== CODING PRACTICES ========== -->
+        
+        <!-- Avoid empty statements -->
+        <module name="EmptyStatement"/>
+
+        <!-- Equals and hashCode together -->
+        <module name="EqualsHashCode"/>
+
+        <!-- Hidden fields -->
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+            <property name="setterCanReturnItsClass" value="true"/>
+        </module>
+
+        <!-- Illegal instantiation -->
+        <module name="IllegalInstantiation"/>
+
+        <!-- Inner assignment -->
+        <module name="InnerAssignment">
+            <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Missing switch default -->
+        <module name="MissingSwitchDefault"/>
+
+        <!-- Modified control variable -->
+        <module name="ModifiedControlVariable"/>
+
+        <!-- Simplified boolean expression -->
+        <module name="SimplifyBooleanExpression"/>
+
+        <!-- Simplified boolean return -->
+        <module name="SimplifyBooleanReturn"/>
+
+        <!-- String literal equality -->
+        <module name="StringLiteralEquality"/>
+
+        <!-- Nested for depth -->
+        <module name="NestedForDepth">
+            <property name="max" value="2"/>
+        </module>
+
+        <!-- Nested if depth -->
+        <module name="NestedIfDepth">
+            <property name="max" value="3"/>
+        </module>
+
+        <!-- Nested try depth -->
+        <module name="NestedTryDepth">
+            <property name="max" value="2"/>
+        </module>
+
+        <!-- One statement per line -->
+        <module name="OneStatementPerLine"/>
+
+        <!-- Overload methods declaration order -->
+        <module name="OverloadMethodsDeclarationOrder"/>
+
+        <!-- ========== JAVADOC (relaxed for Spring Boot) ========== -->
+        
+        <!-- Javadoc for public methods (warning only) -->
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+            <property name="minLineCount" value="5"/>
+            <property name="allowedAnnotations" value="Override, Test, BeforeEach, AfterEach, BeforeAll, AfterAll, GetMapping, PostMapping, PutMapping, DeleteMapping, PatchMapping, RequestMapping, Transactional"/>
+            <property name="severity" value="info"/>
+        </module>
+
+        <!-- ========== MISCELLANEOUS ========== -->
+        
+        <!-- Array type style -->
+        <module name="ArrayTypeStyle"/>
+
+        <!-- Upper ell in long literals -->
+        <module name="UpperEll"/>
+
+        <!-- Final parameters (info only) -->
+        <module name="FinalParameters">
+            <property name="severity" value="info"/>
+        </module>
+
+        <!-- Todo comment -->
+        <module name="TodoComment">
+            <property name="format" value="(TODO)|(FIXME)"/>
+            <property name="severity" value="info"/>
+        </module>
+
+        <!-- Suppress warnings filter -->
+        <module name="SuppressWarningsHolder"/>
+    </module>
+
+    <!-- Allow suppression via @SuppressWarnings -->
+    <module name="SuppressWarningsFilter"/>
+</module>

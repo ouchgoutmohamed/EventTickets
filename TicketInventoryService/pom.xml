@@ -37,6 +37,9 @@
 		<sonar.coverage.exclusions>**/config/**,**/integration/**,**/*Application.java,**/dto/**,**/exception/**</sonar.coverage.exclusions>
 		<!-- JaCoCo version -->
 		<jacoco.version>0.8.11</jacoco.version>
+		<!-- Checkstyle version -->
+		<checkstyle.version>10.12.5</checkstyle.version>
+		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -163,8 +166,62 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<!-- Checkstyle Maven Plugin for Code Quality -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>${checkstyle.version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>false</failsOnError>
+					<failOnViolation>false</failOnViolation>
+					<linkXRef>false</linkXRef>
+					<includeTestSourceDirectory>false</includeTestSourceDirectory>
+					<excludes>**/dto/**,**/exception/**,**/config/**</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>checkstyle</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+	<!-- Reporting Section for HTML Reports -->
+	<reporting>
+		<plugins>
+			<!-- Checkstyle HTML Report -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation>
+					<includeTestSourceDirectory>false</includeTestSourceDirectory>
+					<excludes>**/dto/**,**/exception/**,**/config/**</excludes>
+				</configuration>
+			</plugin>
+			<!-- JaCoCo HTML Report -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<!-- Maven Profiles -->
 	<profiles>
