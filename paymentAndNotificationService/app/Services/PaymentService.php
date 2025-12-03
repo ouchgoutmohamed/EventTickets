@@ -40,7 +40,7 @@ class PaymentService
             }
 
             if (!app()->environment('testing')) {
-                $connection = new AMQPStreamConnection(config("rabbitmq"), 5672, 'guest', 'guest');
+                $connection = new AMQPStreamConnection(config("services.rabbitmq.url"), 5672, 'guest', 'guest');
                 $channel = $connection->channel();
 
                 $channel->queue_declare('payment', false, true, false, false);

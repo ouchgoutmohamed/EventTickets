@@ -15,6 +15,7 @@ return [
     */
     'users' => [
         'url' => env('USERS_SERVICE_URL', 'http://localhost:3000'),
+        'port' => env('USERS_SERVICE_PORT', 3001),
     ],
 
     'rabbitmq' => [

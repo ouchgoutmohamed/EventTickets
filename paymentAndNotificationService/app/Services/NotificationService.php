@@ -12,7 +12,7 @@ class NotificationService
     public function sendPaymentStatus(Payment $payment): void
     {
         // Fetch user from Users Service
-        $user = Http::get(config('services.users.url') . "/api/users/{$payment->user_id}")
+        $user = Http::get(config('services.users.url') . ":" . config('services.users.port') . "/api/users/{$payment->user_id}")
                     ->throw()
                     ->json();
 
