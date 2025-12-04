@@ -1,0 +1,31 @@
+{
+  "name": "User Service Environment - Development",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4001",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "test_email",
+      "value": "test@example.com",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

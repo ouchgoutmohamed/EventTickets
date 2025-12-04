@@ -361,6 +361,53 @@ Les middlewares vérifient :
 
 ## 🧪 Tests
 
+### ✅ Tests Automatisés Implémentés
+
+Le service dispose d'une suite complète de tests automatisés conformément aux exigences du module de Qualité Logicielle.
+
+#### Outils de Test
+- **Jest** - Framework de test JavaScript
+- **Supertest** - Tests d'intégration API
+- **Istanbul (NYC)** - Couverture de code
+- **Postman** - Tests API manuels
+
+#### Exécuter les Tests
+
+```bash
+# Tous les tests
+npm test
+
+# Tests avec couverture
+npm run test:coverage
+
+# Tests unitaires uniquement
+npm run test:unit
+
+# Tests d'intégration uniquement
+npm run test:integration
+
+# Mode watch (développement)
+npm run test:watch
+```
+
+#### Statistiques
+- ✅ **62 tests automatisés** (Jest + Supertest)
+- ✅ **12 requêtes Postman** avec assertions
+- ✅ **Couverture configurée à 70%**
+- ✅ **Documentation complète**
+
+#### Documentation Tests
+- 📄 `QUICKSTART-TESTS.md` - Guide de démarrage rapide
+- 📄 `TESTS-README.md` - Guide utilisateur complet
+- 📄 `TESTING.md` - Documentation technique exhaustive
+- 📄 `IMPLEMENTATION-TESTS-REPORT.md` - Rapport d'implémentation
+
+#### Tests Couverts
+- ✅ Services (AuthService, UserService)
+- ✅ Middlewares (Authentication, Validation)
+- ✅ API Endpoints (Auth, Users)
+- ✅ Intégration complète
+
 ### Utilisation de REST Client (VS Code)
 
 1. Installer l'extension **REST Client**
@@ -395,6 +442,17 @@ Content-Type: application/json
   "email": "admin@sibe.com",
   "motDePasse": "Admin@123"
 }
+```
+
+### Tests Postman
+
+```bash
+# Installer Newman (CLI Postman)
+npm install -g newman
+
+# Exécuter la collection
+newman run tests/postman/user-service-collection.json \
+  -e tests/postman/dev-environment.json
 ```
 
 ## 🚀 Déploiement

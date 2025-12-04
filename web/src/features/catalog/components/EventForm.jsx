@@ -207,16 +207,17 @@ const EventForm = ({
   };
 
   return (
-    <Card className="w-full border-none shadow-none sm:border sm:shadow-sm ">
-      <form onSubmit={handleSubmit} className="space-y-8 p-0 sm:p-6">
+    <Card className="w-full bg-white shadow-lg">
+      <form onSubmit={handleSubmit} className="p-6 space-y-8">
         {/* Section Informations Générales */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-2 py-2 px-2 bg-green-600 rounded-md text-white">
+          <h3 className="flex items-center gap-2 pb-3 text-lg font-semibold border-b">
+            <div className="w-1 h-6 bg-green-600 rounded"></div>
             Informations Générales
           </h3>
           <div className="grid gap-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">
+              <label className="block mb-1 text-sm font-medium">
                 Titre de l'événement *
               </label>
               <Input
@@ -228,7 +229,7 @@ const EventForm = ({
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">
+              <label className="block mb-1 text-sm font-medium">
                 Description
               </label>
               <Textarea
@@ -242,9 +243,9 @@ const EventForm = ({
         </div>
 
         {/* Date & Heure */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="text-sm font-medium mb-1 block">Date *</label>
+            <label className="block mb-1 text-sm font-medium">Date *</label>
             <Input
               type="date"
               name="date"
@@ -254,7 +255,7 @@ const EventForm = ({
             />
                 </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Début *</label>
+            <label className="block mb-1 text-sm font-medium">Début *</label>
             <Input
               type="time"
               name="startTime"
@@ -264,7 +265,7 @@ const EventForm = ({
             />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Fin *</label>
+            <label className="block mb-1 text-sm font-medium">Fin *</label>
             <Input
               type="time"
               name="endTime"
@@ -276,9 +277,9 @@ const EventForm = ({
         </div>
 
         {/* Catégorie & Lieu */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label className="text-sm font-medium mb-1 block">Catégorie</label>
+            <label className="block mb-1 text-sm font-medium">Catégorie</label>
             <Select
               value={formData.category}
               onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}
@@ -286,18 +287,18 @@ const EventForm = ({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="MUSIC">🎵 Musique</SelectItem>
-                            <SelectItem value="SPORTS">⚽ Sport</SelectItem>
-                            <SelectItem value="CONFERENCE">🎤 Conférence</SelectItem>
-                            <SelectItem value="THEATRE">🎭 Théâtre</SelectItem>
-                            <SelectItem value="FESTIVAL">🎪 Festival</SelectItem>
-                        </SelectContent>
-                    </Select>
-            </div>
-            
-          <div className="space-y-3 p-4 bg-gray-50 rounded-lg border">
-            <h4 className="font-medium text-sm">Localisation</h4>
+              <SelectContent>
+                <SelectItem value="MUSIC">🎵 Musique</SelectItem>
+                <SelectItem value="SPORTS">⚽ Sport</SelectItem>
+                <SelectItem value="CONFERENCE">🎤 Conférence</SelectItem>
+                <SelectItem value="THEATRE">🎭 Théâtre</SelectItem>
+                <SelectItem value="FESTIVAL">🎪 Festival</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="p-4 space-y-3 border rounded-lg bg-gray-50">
+            <h4 className="text-sm font-medium">Localisation</h4>
             <Input
               placeholder="Nom de la salle (ex: Grand Théâtre)"
               value={formData.venue.name}
@@ -331,9 +332,9 @@ const EventForm = ({
           </TabsList>
 
           {/* Contenu TABS (Simplifié pour la lecture, logique identique à ton code) */}
-          <TabsContent value="tickets" className="space-y-3 mt-4">
+          <TabsContent value="tickets" className="mt-4 space-y-3">
             {ticketTypes.map((t, i) => (
-              <div key={i} className="flex gap-2 items-end">
+              <div key={i} className="flex items-end gap-2">
                   <Input 
                   placeholder="Nom (ex: Standard)"
                   value={t.name}
@@ -391,7 +392,7 @@ const EventForm = ({
             </Button>
           </TabsContent>
 
-          <TabsContent value="images" className="space-y-3 mt-4">
+          <TabsContent value="images" className="mt-4 space-y-3">
             {images.map((img, i) => (
               <div key={i} className="flex gap-2">
                 <Input
@@ -421,7 +422,7 @@ const EventForm = ({
             </Button>
           </TabsContent>
 
-          <TabsContent value="artists" className="space-y-3 mt-4">
+          <TabsContent value="artists" className="mt-4 space-y-3">
             {artists.map((a, i) => (
               <div key={i} className="flex gap-2">
                 <Input
@@ -462,7 +463,7 @@ const EventForm = ({
         </Tabs>
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-between border-t pt-6">
+        <div className="flex items-center justify-between pt-6 border-t">
           <div className="w-64">
             {" "}
             {/* Agrandir un peu le select */}
@@ -497,9 +498,9 @@ const EventForm = ({
               className="bg-green-600 hover:bg-green-700 text-white gap-2 min-w-[140px]"
             >
               {loading ? (
-                <Loader2 className="animate-spin h-4 w-4" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4" />
+                <Save className="w-4 h-4" />
               )}
               {isEditing ? "Enregistrer" : "Créer l'événement"}
               </Button>

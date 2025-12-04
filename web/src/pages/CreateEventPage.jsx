@@ -13,12 +13,15 @@ const CreateEventPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6 flex items-center gap-4">
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="mb-8 flex items-center gap-4">
          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft size={20} />
+            <ArrowLeft className="w-5 h-5" />
          </Button>
-         <h1 className="text-2xl font-bold">Nouvel événement</h1>
+         <div>
+           <h1 className="text-2xl font-bold tracking-tight">Nouvel événement</h1>
+           <p className="text-sm text-gray-500">Créez et publiez un nouvel événement</p>
+         </div>
       </div>
       <EventForm onSuccess={handleSuccess} onCancel={() => navigate(-1)} />
     </div>

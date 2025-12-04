@@ -89,18 +89,18 @@ const UserDetail = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-6xl mx-auto">
       
       {/* Header Navigation */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
+        <div className="flex-1">
             <h1 className="text-2xl font-bold tracking-tight">Détails Utilisateur</h1>
-            <p className="text-sm text-muted-foreground">ID: #{user.id}</p>
+            <p className="text-sm text-gray-500">ID: #{user.id}</p>
         </div>
-        <div className="ml-auto">
+        <div>
             {getStatusBadge(user.etat)}
         </div>
       </div>
@@ -108,9 +108,9 @@ const UserDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* === COLONNE GAUCHE : Info Principales === */}
-        <Card className="lg:col-span-2">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+        <Card className="lg:col-span-2 shadow-lg">
+            <CardHeader className="border-b bg-gray-50">
+                <CardTitle className="flex items-center gap-2 text-xl">
                     <Shield className="h-5 w-5 text-blue-600"/> Informations Personnelles
                 </CardTitle>
             </CardHeader>
@@ -173,11 +173,12 @@ const UserDetail = () => {
                         <CardDescription>5 dernières activités</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
+                        <div className="overflow-hidden rounded-lg border">
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-xs">Date</TableHead>
-                                    <TableHead className="text-xs">IP</TableHead>
+                                <TableRow className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-700">
+                                    <TableHead className="text-xs text-white font-semibold">Date</TableHead>
+                                    <TableHead className="text-xs text-white font-semibold">IP</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -190,7 +191,7 @@ const UserDetail = () => {
                                     </TableRow>
                                 ) : (
                                     loginHistory.slice(0, 5).map((log, idx) => (
-                                        <TableRow key={idx}>
+                                        <TableRow key={idx} className="hover:bg-gray-50 transition-colors">
                                             <TableCell className="text-xs font-medium">
                                                 {new Date(log.dateConnexion).toLocaleDateString()} <br/>
                                                 <span className="text-gray-400 font-normal">
@@ -210,6 +211,7 @@ const UserDetail = () => {
                                 )}
                             </TableBody>
                         </Table>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
