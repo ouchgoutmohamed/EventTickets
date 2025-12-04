@@ -5,7 +5,7 @@ info:
   description: API documentation for the payment and notification microservice built with Laravel 12.
 
 servers:
-  - url: http://127.0.0.1:8000/api
+  - url: http://127.0.0.1:8083/api
 
 paths:
 
