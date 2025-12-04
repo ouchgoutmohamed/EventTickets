@@ -73,6 +73,12 @@ const userService = {
     const response = await axiosInstance.get(`/users/${userId}/history`);
     return response.data;
   },
+
+  // Admin: Create organizer account
+  createOrganizer: async (organizerData) => {
+    const response = await axiosInstance.post('/users/organizer', organizerData);
+    return response.data;
+  },
 };
 
 export default userService;

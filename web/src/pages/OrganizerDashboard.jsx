@@ -43,11 +43,11 @@ const OrganizerDashboard = () => {
           {[1, 2, 3, 4].map(i => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-2">
-                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="w-24 h-4 bg-gray-200 rounded"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-32"></div>
+                <div className="w-16 h-8 mb-2 bg-gray-200 rounded"></div>
+                <div className="w-32 h-3 bg-gray-200 rounded"></div>
               </CardContent>
             </Card>
           ))}
@@ -77,9 +77,12 @@ const OrganizerDashboard = () => {
       {/* Cartes Principales */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Revenu Total</CardTitle>
+            <DollarSign className="w-4 h-4 text-green-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Événements Total</CardTitle>
-            <Calendar className="h-4 w-4 text-blue-600" />
+            <Calendar className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalEvents || 0}</div>
@@ -90,9 +93,12 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Billets Vendus</CardTitle>
+            <TicketIcon className="w-4 h-4 text-blue-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Capacité Totale</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
+            <Users className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalCapacity?.toLocaleString() || 0}</div>
@@ -103,9 +109,12 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Événements Actifs</CardTitle>
+            <Calendar className="w-4 h-4 text-purple-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Ce Mois</CardTitle>
-            <Activity className="h-4 w-4 text-green-600" />
+            <Activity className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.eventsThisMonth || 0}</div>
@@ -116,9 +125,12 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-gray-500">Taux de Remplissage</CardTitle>
+            <TrendingUp className="w-4 h-4 text-orange-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Mois Prochain</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-600" />
+            <TrendingUp className="w-4 h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.eventsNextMonth || 0}</div>
@@ -131,16 +143,16 @@ const OrganizerDashboard = () => {
       {stats?.mostPopularEvent && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
               Événement le Plus Populaire
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-lg">{stats.mostPopularEvent.title}</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-medium">{stats.mostPopularEvent.title}</span>
+                <span className="px-3 py-1 text-sm text-blue-800 bg-blue-100 rounded-full">
                   {stats.mostPopularEvent.category}
                 </span>
               </div>
@@ -156,7 +168,7 @@ const OrganizerDashboard = () => {
 
       {/* Catégories */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Événements par Catégorie</h2>
+        <h2 className="mb-4 text-xl font-semibold">Événements par Catégorie</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {categoryStats.map((cat) => (
             <Card key={cat.category}>
@@ -192,20 +204,20 @@ const OrganizerDashboard = () => {
           <CardTitle className="text-lg font-semibold">État des Événements</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="p-4 text-center rounded-lg bg-blue-50">
               <div className="text-2xl font-bold text-blue-600">{stats?.activeEvents || 0}</div>
               <div className="text-sm text-gray-600">Actifs</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="p-4 text-center rounded-lg bg-green-50">
               <div className="text-2xl font-bold text-green-600">{stats?.upcomingEvents || 0}</div>
               <div className="text-sm text-gray-600">À venir</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 text-center rounded-lg bg-gray-50">
               <div className="text-2xl font-bold text-gray-600">{stats?.pastEvents || 0}</div>
               <div className="text-sm text-gray-600">Passés</div>
             </div>
-            <div className="text-center p-4 bg-red-50 rounded-lg">
+            <div className="p-4 text-center rounded-lg bg-red-50">
               <div className="text-2xl font-bold text-red-600">{stats?.cancelledEvents || 0}</div>
               <div className="text-sm text-gray-600">Annulés</div>
             </div>

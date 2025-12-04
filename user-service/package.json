@@ -6,28 +6,60 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "lint": "eslint src/ --ext .js",
+    "lint:fix": "eslint src/ --ext .js --fix",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
     "prisma:reset": "prisma migrate reset",
     "setup": "npm install && npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage --runInBand",
+    "test:unit": "cross-env NODE_ENV=test jest tests/unit --runInBand",
+    "test:integration": "cross-env NODE_ENV=test jest tests/integration --runInBand",
+    "test:verbose": "cross-env NODE_ENV=test jest --verbose --runInBand",
+    "coverage:report": "nyc report --reporter=html --reporter=text",
+    "coverage:check": "nyc check-coverage --lines 70 --functions 70 --branches 70",
+    "sonar": "sonar-scanner",
+    "sonar:coverage": "npm run test:coverage && sonar-scanner",
+    "snyk:test": "snyk test",
+    "snyk:monitor": "snyk monitor",
+    "snyk:fix": "snyk fix",
+    "swagger:export": "node -e \"const spec = require('./src/config/swagger'); console.log(JSON.stringify(spec, null, 2));\" > docs/openapi.json"
   },
-  "keywords": ["express", "prisma", "jwt", "authentication", "microservice"],
+  "keywords": [
+    "express",
+    "prisma",
+    "jwt",
+    "authentication",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.18.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
+    "express": "^5.2.0",
     "express-validator": "^7.3.0",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.18.0"
+    "prisma": "^6.18.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^6.0.3",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "nyc": "^17.1.0",
+    "sonarqube-scanner": "^4.3.2",
+    "supertest": "^7.1.4"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

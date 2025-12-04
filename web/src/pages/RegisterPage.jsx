@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import logo from '@/assets/logo-light.png'; 
+import logo from '@/assets/logo-dark.png'; 
 
 // Schéma plus complet pour l'inscription
 const registerSchema = z.object({

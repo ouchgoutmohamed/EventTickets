@@ -112,20 +112,20 @@ const EventList = () => {
         </div>
       ) : (
         /* Tableau des événements */
-        <div className="border rounded-lg bg-white overflow-hidden">
+        <div className="border rounded-lg bg-white overflow-hidden shadow-lg">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead className="w-[300px]">Événement</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Lieu</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-600 hover:to-green-700">
+                <TableHead className="w-[300px] text-white font-semibold">Événement</TableHead>
+                <TableHead className="text-white font-semibold">Date</TableHead>
+                <TableHead className="text-white font-semibold">Lieu</TableHead>
+                <TableHead className="text-white font-semibold">Statut</TableHead>
+                <TableHead className="text-right text-white font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {events.map((event) => (
-                <TableRow key={event.id}>
+                <TableRow key={event.id} className="hover:bg-gray-50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       {event.imageUrl && (
@@ -208,7 +208,7 @@ const EventList = () => {
         open={!!eventToDelete}
         onOpenChange={() => setEventToDelete(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
             <AlertDialogDescription>

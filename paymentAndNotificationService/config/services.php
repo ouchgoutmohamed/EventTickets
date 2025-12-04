@@ -13,6 +13,14 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'users' => [
+        'url' => env('USERS_SERVICE_URL', 'http://localhost:3000'),
+        'port' => env('USERS_SERVICE_PORT', 3001),
+    ],
+
+    'rabbitmq' => [
+        'url' => env('RABBITMQ_SERVICE_URL')
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

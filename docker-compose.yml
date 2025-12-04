@@ -96,18 +96,6 @@ services:
       context: ./paymentAndNotificationService
     container_name: eventtickets-payment
     restart: unless-stopped
-    environment:
-      DB_CONNECTION: mysql
-      DB_HOST: eventtickets-mysql
-      DB_PORT: 3306
-      DB_DATABASE: eventtickets_payments
-      DB_USERNAME: root
-      DB_PASSWORD: root
-      APP_KEY: base64:your-generated-key-here
-      APP_ENV: local
-      APP_DEBUG: true
-      USERS_SERVICE_URL: user-service
-      RABBITMQ_SERVICE_URL: rabbitmq
     ports:
       - "8083:8000"
     depends_on:

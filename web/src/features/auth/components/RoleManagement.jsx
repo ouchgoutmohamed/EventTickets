@@ -115,17 +115,18 @@ const fetchRoles = async () => {
                     <p className="text-sm text-muted-foreground">Récupération des rôles...</p>
                 </div>
             ) : (
+            <div className="overflow-hidden rounded-lg border">
             <Table>
-                <TableHeader className="bg-slate-900 text-white">
-                    <TableRow >
-                        <TableHead>Nom</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                <TableHeader>
+                    <TableRow className="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-900 hover:to-slate-800">
+                        <TableHead className="text-white font-semibold">Nom</TableHead>
+                        <TableHead className="text-white font-semibold">Description</TableHead>
+                        <TableHead className="text-right text-white font-semibold">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {roles.map(role => (
-                        <TableRow key={role.id}>
+                        <TableRow key={role.id} className="hover:bg-gray-50 transition-colors">
                             <TableCell className="font-medium">{role.nom}</TableCell>
                             <TableCell>{role.description}</TableCell>
                             <TableCell className="text-right space-x-2">
@@ -140,6 +141,7 @@ const fetchRoles = async () => {
                     ))}
                 </TableBody>
             </Table>
+            </div>
        )}
         </CardContent>
       </Card>
