@@ -20,8 +20,6 @@ class NotificationService
         $payloadJson = base64_decode($padded);
         $payloadArray = json_decode($payloadJson, true);
 
-        $nom = $payloadArray['nom'] ?? null;
-        $prenom = $payloadArray['email'] ?? null;
         $email = $payloadArray['email'] ?? null;
         
         $subject = match ($payment->status) {
@@ -31,7 +29,7 @@ class NotificationService
             default   => 'Payment Update',
         };
 
-        $message = "Hello {$nom} {$prenom}, your payment status: {$payment->status}.";
+        $message = "Hello, your payment status: {$payment->status}.";
 
         // Save notification in DB
         \App\Models\Notification::create([
