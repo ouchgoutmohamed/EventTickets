@@ -101,11 +101,11 @@ const EventForm = ({
   // Gestion des tableaux dynamiques (Tickets, Images, Artistes)
   const updateArrayItem = (setter, index, field, value) => {
     setter((prev) => {
-      const updated = [...prev];
+        const updated = [...prev];
       // Si field est null, on update l'item directement (cas des images string ou objet simple)
       if (field) updated[index][field] = value;
       else updated[index].url = value; // Cas spécifique images
-      return updated;
+        return updated;
     });
   };
 
@@ -113,7 +113,7 @@ const EventForm = ({
   const removeItem = (setter, index) =>
     setter((prev) => prev.filter((_, i) => i !== index));
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -252,7 +252,7 @@ const handleSubmit = async (e) => {
               onChange={handleChange}
               required
             />
-          </div>
+                </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Début *</label>
             <Input
@@ -286,16 +286,16 @@ const handleSubmit = async (e) => {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="MUSIC">🎵 Musique</SelectItem>
-                <SelectItem value="SPORTS">⚽ Sport</SelectItem>
-                <SelectItem value="CONFERENCE">🎤 Conférence</SelectItem>
-                <SelectItem value="THEATRE">🎭 Théâtre</SelectItem>
-                <SelectItem value="FESTIVAL">🎪 Festival</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
+                        <SelectContent>
+                            <SelectItem value="MUSIC">🎵 Musique</SelectItem>
+                            <SelectItem value="SPORTS">⚽ Sport</SelectItem>
+                            <SelectItem value="CONFERENCE">🎤 Conférence</SelectItem>
+                            <SelectItem value="THEATRE">🎭 Théâtre</SelectItem>
+                            <SelectItem value="FESTIVAL">🎪 Festival</SelectItem>
+                        </SelectContent>
+                    </Select>
+            </div>
+            
           <div className="space-y-3 p-4 bg-gray-50 rounded-lg border">
             <h4 className="font-medium text-sm">Localisation</h4>
             <Input
@@ -319,8 +319,8 @@ const handleSubmit = async (e) => {
                 required
               />
             </div>
-          </div>
-        </div>
+                      </div>
+                  </div>
 
         {/* TABS : Billets / Images / Artistes */}
         <Tabs defaultValue="tickets" className="w-full">
@@ -334,7 +334,7 @@ const handleSubmit = async (e) => {
           <TabsContent value="tickets" className="space-y-3 mt-4">
             {ticketTypes.map((t, i) => (
               <div key={i} className="flex gap-2 items-end">
-                <Input
+                  <Input 
                   placeholder="Nom (ex: Standard)"
                   value={t.name}
                   onChange={(e) =>
@@ -368,7 +368,7 @@ const handleSubmit = async (e) => {
                       parseInt(e.target.value)
                     )
                   }
-                />
+                  />
                 <Button
                   type="button"
                   variant="destructive"
@@ -380,13 +380,13 @@ const handleSubmit = async (e) => {
               </div>
             ))}
             <Button
-              type="button"
+                                  type="button"
               variant="outline"
               onClick={() =>
                 addItem(setTicketTypes, { name: "", price: 0, quantity: 0 })
               }
               className="w-full border-dashed"
-            >
+                              >
               <Plus size={16} /> Ajouter un type de billet
             </Button>
           </TabsContent>
@@ -409,8 +409,8 @@ const handleSubmit = async (e) => {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
-            ))}
+                        </div>
+                    ))}
             <Button
               type="button"
               variant="outline"
@@ -446,8 +446,8 @@ const handleSubmit = async (e) => {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
-            ))}
+                        </div>
+                    ))}
             <Button
               type="button"
               variant="outline"
@@ -474,19 +474,19 @@ const handleSubmit = async (e) => {
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="DRAFT">📝 Brouillon</SelectItem>
+                      <SelectItem value="DRAFT">📝 Brouillon</SelectItem>
                 <SelectItem value="PUBLISHED">📅 Publié (Visible)</SelectItem>
                 <SelectItem value="OPEN_FOR_BOOKING">
                   🎟️ Billetterie Ouverte
                 </SelectItem>
-                <SelectItem value="SOLDOUT">❌ Complet</SelectItem>
+                      <SelectItem value="SOLDOUT">❌ Complet</SelectItem>
                 <SelectItem value="POSTPONED">⚠️ Reporté</SelectItem>
-                <SelectItem value="CANCELLED">🚫 Annulé</SelectItem>
+                      <SelectItem value="CANCELLED">🚫 Annulé</SelectItem>
                 <SelectItem value="COMPLETED">🏁 Terminé</SelectItem>
-              </SelectContent>
-            </Select>
+                  </SelectContent>
+              </Select>
           </div>
-
+          
           <div className="flex gap-3">
             <Button type="button" variant="ghost" onClick={onCancel}>
               Annuler
@@ -502,10 +502,10 @@ const handleSubmit = async (e) => {
                 <Save className="h-4 w-4" />
               )}
               {isEditing ? "Enregistrer" : "Créer l'événement"}
-            </Button>
+              </Button>
           </div>
-        </div>
-      </form>
+      </div>
+    </form>
     </Card>
   );
 };

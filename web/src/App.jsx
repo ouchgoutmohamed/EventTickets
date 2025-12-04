@@ -21,6 +21,7 @@ import UserManagement from './features/auth/components/UserManagement';
 import UserDetail from './features/auth/components/UserDetail';
 import EditEventPage from './pages/EditEventPage';
 import AboutPage from './pages/about';
+import Footer from './components/layout/Footer';
 
 
 
@@ -28,7 +29,7 @@ export default function App() {
   return (
     <Routes>
            {/* === Routes Publiques (Avec Header public) === */}
-           <Route path="/" element={<><Header /><HomePage /></>} />
+           <Route path="/" element={<><Header /><HomePage /> <Footer /></>} />
            <Route path="/about" element={<><Header /><AboutPage /></>} />
            <Route path="/events/:id" element={<><Header /><EventDetailsPage /></>} />
            <Route path="/login" element={<><Header /><LoginPage /></>} />
