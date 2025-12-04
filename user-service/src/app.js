@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const { authRoutes, userRoutes, roleRoutes } = require('./routes');
 const { errorHandler, notFound } = require('./middlewares/error.middleware');
 
@@ -39,6 +41,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Swagger UI Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Eventify User Service API',
+}));
+
+// Swagger JSON endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 // Route de test
 app.get('/', (req, res) => {
   res.json({ 
@@ -49,6 +63,7 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       users: '/api/users',
       roles: '/api/roles',
+      documentation: '/api-docs',
     },
   });
 });
