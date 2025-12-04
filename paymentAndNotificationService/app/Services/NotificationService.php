@@ -11,11 +11,19 @@ class NotificationService
 {
     public function sendPaymentStatus(Payment $payment): void
     {
-        // Fetch user from Users Service
-        $user = Http::get(config('services.users.url') . ":" . config('services.users.port') . "/api/users/{$payment->user_id}")
-                    ->throw()
-                    ->json();
+        $token = request()->bearerToken();
 
+        [$header, $payload, $signature] = explode(".", $token);
+
+        $urlSafe = strtr($payload, '-_', '+/');
+        $padded = $urlSafe . str_repeat('=', (4 - strlen($urlSafe) % 4) % 4);
+        $payloadJson = base64_decode($padded);
+        $payloadArray = json_decode($payloadJson, true);
+
+        $nom = $payloadArray['nom'] ?? null;
+        $prenom = $payloadArray['email'] ?? null;
+        $email = $payloadArray['email'] ?? null;
+        
         $subject = match ($payment->status) {
             PaymentStatus::SUCCESS->value => 'Payment Successful',
             PaymentStatus::FAILED->value  => 'Payment Failed',
@@ -23,7 +31,7 @@ class NotificationService
             default   => 'Payment Update',
         };
 
-        $message = "Hello {$user['name']}, your payment status: {$payment->status}.";
+        $message = "Hello {$nom} {$prenom}, your payment status: {$payment->status}.";
 
         // Save notification in DB
         \App\Models\Notification::create([
@@ -34,8 +42,8 @@ class NotificationService
         ]);
 
         // Send an actual email
-        Mail::raw($message, function ($mail) use ($user, $subject) {
-            $mail->to($user['email'])->subject($subject);
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)->subject($subject);
         });
     }
 }
