@@ -18,6 +18,9 @@ router.use(
       '^/auth': '/api/auth', // Réécrire /auth vers /api/auth
     },
     onProxyReq: (proxyReq, req, res) => {
+      // Log pour debug - req.path est avant le rewrite, req.url après
+      console.log(`[Proxy Auth] ${req.method} ${req.originalUrl} -> ${config.services.userService}${proxyReq.path}`);
+      
       // Transférer les headers d'authentification
       if (req.headers['x-user-id']) {
         proxyReq.setHeader('x-user-id', req.headers['x-user-id']);
@@ -28,6 +31,12 @@ router.use(
       if (req.headers['x-user-email']) {
         proxyReq.setHeader('x-user-email', req.headers['x-user-email']);
       }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // S'assurer que les headers CORS sont présents dans la réponse
+      const origin = req.headers.origin || 'http://localhost:5173';
+      proxyRes.headers['Access-Control-Allow-Origin'] = origin;
+      proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
     },
     onError: (err, req, res) => {
       console.error('Erreur proxy auth:', err.message);

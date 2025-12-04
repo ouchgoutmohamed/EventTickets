@@ -72,10 +72,6 @@ const LoginPage = () => {
       error("Une erreur inattendue est survenue");
     }
   };
-      
-      
-  
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md shadow-lg border-t-4 border-t-green-600">
