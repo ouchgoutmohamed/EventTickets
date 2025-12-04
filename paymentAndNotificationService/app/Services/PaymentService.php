@@ -20,24 +20,29 @@ class PaymentService
             'amount' => $data['amount'],
             'currency' => $data['currency'],
             'method' => $data['method'],
-            'status' => PaymentStatus::PENDING,
+            'status' => PaymentStatus::PENDING->value,
         ]);
 
         try {
             // Simulate payment gateway logic here
-            $success = rand(0, 1); // Fake outcome
+            // $success = rand(0, 1); // Fake outcome
 
-            if ($success) {
-                $payment->update([
-                    'status' => PaymentStatus::SUCCESS,
-                    'transaction_id' => Str::uuid(),
-                ]);
-            } else {
-                $payment->update([
-                    'status' => PaymentStatus::FAILED,
-                    'reason' => 'Insufficient funds',
-                ]);
-            }
+            // if ($success) {
+            //     $payment->update([
+            //         'status' => PaymentStatus::SUCCESS->value,
+            //         'transaction_id' => Str::uuid(),
+            //     ]);
+            // } else {
+            //     $payment->update([
+            //         'status' => PaymentStatus::FAILED->value,
+            //         'reason' => 'Insufficient funds',
+            //     ]);
+            // }
+
+            $payment->update([
+                'status' => PaymentStatus::SUCCESS->value,
+                'transaction_id' => Str::uuid(),
+            ]);
 
             if (!app()->environment('testing')) {
                 $connection = new AMQPStreamConnection(config("services.rabbitmq.url"), 5672, 'guest', 'guest');
@@ -45,8 +50,8 @@ class PaymentService
 
                 $channel->queue_declare('payment', false, true, false, false);
 
-                $msg = $success ? PaymentStatus::SUCCESS->value : PaymentStatus::FAILED->value;
-                $msg = new AMQPMessage($msg, [
+                // $msg = $success ? PaymentStatus::SUCCESS->value : PaymentStatus::FAILED->value;
+                $msg = new AMQPMessage(PaymentStatus::SUCCESS->value, [
                     'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
                 ]);
                 $channel->basic_publish($msg, '', 'status');
