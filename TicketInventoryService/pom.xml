@@ -28,6 +28,15 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<!-- SonarQube properties -->
+		<sonar.projectKey>eventtickets:ticket-inventory-service</sonar.projectKey>
+		<sonar.projectName>Ticket Inventory Service</sonar.projectName>
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.exclusions>**/config/**,**/integration/**,**/*Application.java,**/dto/**</sonar.exclusions>
+		<sonar.coverage.exclusions>**/config/**,**/integration/**,**/*Application.java,**/dto/**,**/exception/**</sonar.coverage.exclusions>
+		<!-- JaCoCo version -->
+		<jacoco.version>0.8.11</jacoco.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -110,7 +119,71 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<!-- JaCoCo Maven Plugin for Code Coverage -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<!-- Prepare agent for unit tests -->
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<!-- Generate coverage report after tests -->
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+							<formats>
+								<format>XML</format>
+								<format>HTML</format>
+							</formats>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<excludes>
+						<!-- Exclude configuration classes -->
+						<exclude>**/config/**</exclude>
+						<!-- Exclude integration classes -->
+						<exclude>**/integration/**</exclude>
+						<!-- Exclude main application class -->
+						<exclude>**/*Application.class</exclude>
+						<!-- Exclude DTOs -->
+						<exclude>**/dto/**</exclude>
+						<!-- Exclude exceptions -->
+						<exclude>**/exception/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+
+	<!-- Maven Profiles -->
+	<profiles>
+		<!-- Sonar profile for running tests + coverage + sonar analysis -->
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.host.url>http://localhost:9000</sonar.host.url>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>3.10.0.2594</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

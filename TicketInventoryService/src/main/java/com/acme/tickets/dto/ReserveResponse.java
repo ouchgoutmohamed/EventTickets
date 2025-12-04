@@ -16,6 +16,9 @@ public record ReserveResponse(
     String status,
     
     @Schema(description = "Date d'expiration de la réservation temporaire", example = "2025-11-07T15:30:00Z")
-    Instant holdExpiresAt
+    Instant holdExpiresAt,
+
+    @Schema(description = "Quantité effectivement réservée après application des limites", example = "6")
+    Integer quantity
 ) {
 }

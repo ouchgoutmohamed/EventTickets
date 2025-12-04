@@ -101,11 +101,11 @@ const EventForm = ({
   // Gestion des tableaux dynamiques (Tickets, Images, Artistes)
   const updateArrayItem = (setter, index, field, value) => {
     setter((prev) => {
-      const updated = [...prev];
+        const updated = [...prev];
       // Si field est null, on update l'item directement (cas des images string ou objet simple)
       if (field) updated[index][field] = value;
       else updated[index].url = value; // Cas spécifique images
-      return updated;
+        return updated;
     });
   };
 
@@ -113,7 +113,7 @@ const EventForm = ({
   const removeItem = (setter, index) =>
     setter((prev) => prev.filter((_, i) => i !== index));
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -207,17 +207,17 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <Card className="w-full shadow-lg bg-white">
-      <form onSubmit={handleSubmit} className="space-y-8 p-6">
+    <Card className="w-full bg-white shadow-lg">
+      <form onSubmit={handleSubmit} className="p-6 space-y-8">
         {/* Section Informations Générales */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold pb-3 flex items-center gap-2 border-b">
+          <h3 className="flex items-center gap-2 pb-3 text-lg font-semibold border-b">
             <div className="w-1 h-6 bg-green-600 rounded"></div>
             Informations Générales
           </h3>
           <div className="grid gap-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">
+              <label className="block mb-1 text-sm font-medium">
                 Titre de l'événement *
               </label>
               <Input
@@ -229,7 +229,7 @@ const handleSubmit = async (e) => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">
+              <label className="block mb-1 text-sm font-medium">
                 Description
               </label>
               <Textarea
@@ -243,9 +243,9 @@ const handleSubmit = async (e) => {
         </div>
 
         {/* Date & Heure */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="text-sm font-medium mb-1 block">Date *</label>
+            <label className="block mb-1 text-sm font-medium">Date *</label>
             <Input
               type="date"
               name="date"
@@ -253,9 +253,9 @@ const handleSubmit = async (e) => {
               onChange={handleChange}
               required
             />
-          </div>
+                </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Début *</label>
+            <label className="block mb-1 text-sm font-medium">Début *</label>
             <Input
               type="time"
               name="startTime"
@@ -265,7 +265,7 @@ const handleSubmit = async (e) => {
             />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Fin *</label>
+            <label className="block mb-1 text-sm font-medium">Fin *</label>
             <Input
               type="time"
               name="endTime"
@@ -277,9 +277,9 @@ const handleSubmit = async (e) => {
         </div>
 
         {/* Catégorie & Lieu */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label className="text-sm font-medium mb-1 block">Catégorie</label>
+            <label className="block mb-1 text-sm font-medium">Catégorie</label>
             <Select
               value={formData.category}
               onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}
@@ -297,8 +297,8 @@ const handleSubmit = async (e) => {
             </Select>
           </div>
 
-          <div className="space-y-3 p-4 bg-white rounded-lg border">
-            <h4 className="font-medium text-sm">Localisation</h4>
+          <div className="p-4 space-y-3 border rounded-lg bg-gray-50">
+            <h4 className="text-sm font-medium">Localisation</h4>
             <Input
               placeholder="Nom de la salle (ex: Grand Théâtre)"
               value={formData.venue.name}
@@ -320,8 +320,8 @@ const handleSubmit = async (e) => {
                 required
               />
             </div>
-          </div>
-        </div>
+                      </div>
+                  </div>
 
         {/* TABS : Billets / Images / Artistes */}
         <Tabs defaultValue="tickets" className="w-full">
@@ -332,10 +332,10 @@ const handleSubmit = async (e) => {
           </TabsList>
 
           {/* Contenu TABS (Simplifié pour la lecture, logique identique à ton code) */}
-          <TabsContent value="tickets" className="space-y-3 mt-4">
+          <TabsContent value="tickets" className="mt-4 space-y-3">
             {ticketTypes.map((t, i) => (
-              <div key={i} className="flex gap-2 items-end">
-                <Input
+              <div key={i} className="flex items-end gap-2">
+                  <Input 
                   placeholder="Nom (ex: Standard)"
                   value={t.name}
                   onChange={(e) =>
@@ -369,7 +369,7 @@ const handleSubmit = async (e) => {
                       parseInt(e.target.value)
                     )
                   }
-                />
+                  />
                 <Button
                   type="button"
                   variant="destructive"
@@ -381,18 +381,18 @@ const handleSubmit = async (e) => {
               </div>
             ))}
             <Button
-              type="button"
+                                  type="button"
               variant="outline"
               onClick={() =>
                 addItem(setTicketTypes, { name: "", price: 0, quantity: 0 })
               }
               className="w-full border-dashed"
-            >
+                              >
               <Plus size={16} /> Ajouter un type de billet
             </Button>
           </TabsContent>
 
-          <TabsContent value="images" className="space-y-3 mt-4">
+          <TabsContent value="images" className="mt-4 space-y-3">
             {images.map((img, i) => (
               <div key={i} className="flex gap-2">
                 <Input
@@ -410,8 +410,8 @@ const handleSubmit = async (e) => {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
-            ))}
+                        </div>
+                    ))}
             <Button
               type="button"
               variant="outline"
@@ -422,7 +422,7 @@ const handleSubmit = async (e) => {
             </Button>
           </TabsContent>
 
-          <TabsContent value="artists" className="space-y-3 mt-4">
+          <TabsContent value="artists" className="mt-4 space-y-3">
             {artists.map((a, i) => (
               <div key={i} className="flex gap-2">
                 <Input
@@ -447,8 +447,8 @@ const handleSubmit = async (e) => {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
-            ))}
+                        </div>
+                    ))}
             <Button
               type="button"
               variant="outline"
@@ -463,7 +463,7 @@ const handleSubmit = async (e) => {
         </Tabs>
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-between border-t pt-6">
+        <div className="flex items-center justify-between pt-6 border-t">
           <div className="w-64">
             {" "}
             {/* Agrandir un peu le select */}
@@ -475,19 +475,19 @@ const handleSubmit = async (e) => {
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="DRAFT">📝 Brouillon</SelectItem>
+                      <SelectItem value="DRAFT">📝 Brouillon</SelectItem>
                 <SelectItem value="PUBLISHED">📅 Publié (Visible)</SelectItem>
                 <SelectItem value="OPEN_FOR_BOOKING">
                   🎟️ Billetterie Ouverte
                 </SelectItem>
-                <SelectItem value="SOLDOUT">❌ Complet</SelectItem>
+                      <SelectItem value="SOLDOUT">❌ Complet</SelectItem>
                 <SelectItem value="POSTPONED">⚠️ Reporté</SelectItem>
-                <SelectItem value="CANCELLED">🚫 Annulé</SelectItem>
+                      <SelectItem value="CANCELLED">🚫 Annulé</SelectItem>
                 <SelectItem value="COMPLETED">🏁 Terminé</SelectItem>
-              </SelectContent>
-            </Select>
+                  </SelectContent>
+              </Select>
           </div>
-
+          
           <div className="flex gap-3">
             <Button type="button" variant="ghost" onClick={onCancel}>
               Annuler
@@ -498,15 +498,15 @@ const handleSubmit = async (e) => {
               className="bg-green-600 hover:bg-green-700 text-white gap-2 min-w-[140px]"
             >
               {loading ? (
-                <Loader2 className="animate-spin h-4 w-4" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4" />
+                <Save className="w-4 h-4" />
               )}
               {isEditing ? "Enregistrer" : "Créer l'événement"}
-            </Button>
+              </Button>
           </div>
-        </div>
-      </form>
+      </div>
+    </form>
     </Card>
   );
 };

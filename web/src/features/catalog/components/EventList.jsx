@@ -208,7 +208,7 @@ const EventList = () => {
         open={!!eventToDelete}
         onOpenChange={() => setEventToDelete(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
             <AlertDialogDescription>

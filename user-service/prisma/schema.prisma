@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Add the runtime for Alpine Linux and keep 'native' for local development
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
   output   = "../src/generated/prisma"
 }
 

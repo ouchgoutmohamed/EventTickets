@@ -19,7 +19,12 @@ const registerSchema = z.object({
   prenom: z.string().min(2, "Le prénom est trop court"),
   nom: z.string().min(2, "Le nom est trop court"),
   email: z.string().email("Email invalide"),
-  password: z.string().min(6, "Le mot de passe doit faire 6 caractères min."),
+  password: z.string()
+    .min(8, "Le mot de passe doit faire au moins 8 caractères")
+    .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule")
+    .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule")
+    .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre")
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Le mot de passe doit contenir au moins un caractère spécial"),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
@@ -37,13 +42,12 @@ const RegisterPage = () => {
 
   const onSubmit = async (data) => {
     // Préparation de l'objet pour le backend
-    // Adapte selon ce que ton microservice User attend (ex: role: 'CLIENT')
     const userData = {
       prenom: data.prenom,
       nom: data.nom,
       email: data.email,
       password: data.password,
-      role: { nom: 'client' } // Exemple par défaut
+      roleNom: 'client' // Le backend attend roleNom comme string
     };
 
     try {

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, FilterX } from "lucide-react";
+import { Search, Loader2, FilterX, Sparkles, MapPin, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import EventCard from '@/features/catalog/components/EventCard';
 
 // Import du service
 import { getAllEvents } from '@/features/catalog/services/eventService';
-import { getStatusConfig } from '../utils/statusHelpers';
+import { getStatusConfig } from '@/utils/statusHelpers';
 
 const CATEGORIES = ["Tous", "MUSIC", "SPORTS", "CONFERENCE", "THEATRE", "FESTIVAL"];
 
@@ -23,12 +24,10 @@ const HomePage = () => {
     fetchEvents();
   }, []);
 
-const fetchEvents = async () => {
+  const fetchEvents = async () => {
     try {
       setLoading(true);
       const data = await getAllEvents();
-      console.log(data);
-      
       
       // 🛡️ FILTRAGE SÉCURISÉ DES DONNÉES BRUTES
       const visibleEvents = Array.isArray(data) ? data.filter(event => {
@@ -39,72 +38,92 @@ const fetchEvents = async () => {
       
       setEvents(visibleEvents);
     } catch (err) {
-      // ...
+      console.error(err);
+      setError("Impossible de charger les événements.");
     } finally {
       setLoading(false);
     }
   };
+
   // === LOGIQUE DE FILTRAGE FRONTEND ===
   const filteredEvents = events.filter(event => {
-    // 1. Filtre par catégorie
     const matchCategory = selectedCategory === "Tous" || event.category?.categoryType === selectedCategory;
-    
-    // 2. Filtre par recherche (Titre ou Ville)
     const searchLower = searchTerm.toLowerCase();
     const matchSearch = event.title.toLowerCase().includes(searchLower) || 
                         (event.venue?.city || "").toLowerCase().includes(searchLower);
-
     return matchCategory && matchSearch;
   });
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
+    <div className="min-h-screen bg-slate-50/50 pb-20 font-sans selection:bg-green-100">
       
-      {/* === HERO SECTION === */}
-      <div className="bg-white border-b py-12 md:py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Vivez des moments <span className="text-green-600">inoubliables</span>
+      {/* === HERO SECTION (Améliorée) === */}
+      <div className="relative bg-white overflow-hidden border-b">
+        {/* Decorative Background Blobs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none z-0">
+            <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+            <div className="absolute top-[10%] right-[-5%] w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10 text-center">
+          
+          <Badge variant="outline" className="mb-6 px-4 py-1 border-green-200 text-green-700 bg-green-50 uppercase tracking-widest text-[10px] font-bold animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <Sparkles size={12} className="mr-2" /> La billetterie nouvelle génération
+          </Badge>
+
+          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both">
+            Vivez l'instant <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">Inoubliable</span>
           </h1>
-          <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-            Découvrez et réservez les meilleurs événements autour de vous : concerts, conférences, ateliers et plus encore.
+          
+          <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-both">
+            Concerts, festivals, théâtre... Découvrez les meilleurs événements près de chez vous et réservez votre place en quelques clics.
           </p>
           
-          {/* Search Bar */}
-          <div className="flex flex-col md:flex-row gap-3 max-w-xl mx-auto relative">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-3 text-gray-400" size={20}/>
-              <Input 
-                placeholder="Rechercher un événement, une ville..." 
-                className="pl-10 h-12 text-base shadow-sm border-gray-200"
+          {/* Search Bar Floating */}
+          <div className="flex flex-col md:flex-row gap-2 max-w-2xl mx-auto bg-white p-2 rounded-full shadow-xl shadow-slate-200/50 border border-slate-100 animate-in fade-in zoom-in duration-1000 delay-300 fill-mode-both">
+            <div className="relative flex-grow flex items-center px-4">
+              <Search className="text-slate-400 mr-3" size={20}/>
+              <input 
+                type="text"
+                placeholder="Quel événement cherchez-vous ?" 
+                className="w-full bg-transparent border-none outline-none text-slate-700 placeholder:text-slate-400 h-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button className="h-12 px-8 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md">
+            <Button className="h-12 px-8 rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold transition-all hover:shadow-lg hover:shadow-green-200">
               Rechercher
             </Button>
+          </div>
+
+          {/* Quick Stats (Optional) */}
+          <div className="mt-12 flex justify-center gap-8 text-slate-400 text-sm font-medium animate-in fade-in duration-1000 delay-500">
+             <span className="flex items-center gap-2"><MapPin size={16}/> +15 Villes</span>
+             <span className="flex items-center gap-2"><CalendarDays size={16}/> +100 Événements/mois</span>
           </div>
         </div>
       </div>
 
       {/* === MAIN CONTENT === */}
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-4 py-16">
         
-        {/* Filter Categories */}
-        <div className="flex items-center justify-between mb-8 overflow-x-auto">
-            <div className="flex gap-2 pb-2">
+        {/* Filter Categories (Pills Design) */}
+        <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-bold text-slate-900 hidden md:block">À l'affiche</h2>
+            
+            <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide w-full md:w-auto">
                 {CATEGORIES.map(cat => (
                     <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                        className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                             selectedCategory === cat 
-                            ? 'bg-green-600 text-white shadow-md' 
-                            : 'bg-white text-gray-600 border hover:bg-gray-50'
+                            ? 'bg-slate-900 text-white shadow-md transform scale-105' 
+                            : 'bg-white text-slate-600 border border-slate-200 hover:border-green-500 hover:text-green-600'
                         }`}
                     >
-                        {cat === 'Tous' ? 'Tous' : cat.charAt(0) + cat.slice(1).toLowerCase()} {/* Joli formatage */}
+                        {cat === 'Tous' ? 'Tous' : cat.charAt(0) + cat.slice(1).toLowerCase()}
                     </button>
                 ))}
             </div>
@@ -112,41 +131,54 @@ const fetchEvents = async () => {
 
         {/* LOADING STATE */}
         {loading && (
-            <div className="flex justify-center items-center py-20">
-                <Loader2 className="animate-spin text-green-600 h-10 w-10" />
+            <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-green-100 rounded-full animate-spin"></div>
+                    <div className="w-16 h-16 border-4 border-green-600 rounded-full animate-spin absolute top-0 left-0 border-t-transparent"></div>
+                </div>
+                <p className="text-slate-500 animate-pulse">Recherche des meilleurs plans...</p>
             </div>
         )}
 
         {/* ERROR STATE */}
         {error && !loading && (
-            <div className="text-center py-20 text-red-500">
-                {error}
+            <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-100 mx-auto max-w-2xl">
+                <p className="text-red-600 font-medium mb-2">Oups ! Une erreur est survenue.</p>
+                <p className="text-red-400 text-sm">{error}</p>
             </div>
         )}
 
         {/* EVENTS GRID */}
         {!loading && !error && (
             <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {filteredEvents.map(event => (
-                        <EventCard key={event.id} event={event} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {filteredEvents.map((event, index) => (
+                        // Animation d'entrée en cascade (Staggered)
+                        <div 
+                            key={event.id} 
+                            className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both"
+                            style={{ animationDelay: `${index * 100}ms` }} // Délai progressif
+                        >
+                            <EventCard event={event} />
+                        </div>
                     ))}
                 </div>
                 
                 {/* EMPTY STATE */}
                 {filteredEvents.length === 0 && (
-                    <div className="text-center py-20 flex flex-col items-center text-gray-500">
-                        <div className="bg-gray-100 p-4 rounded-full mb-4">
-                            <FilterX size={32} className="text-gray-400"/>
+                    <div className="text-center py-32 flex flex-col items-center">
+                        <div className="bg-slate-100 p-6 rounded-full mb-6">
+                            <FilterX size={48} className="text-slate-400"/>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">Aucun événement trouvé</h3>
-                        <p>Essayez de modifier vos filtres ou votre recherche.</p>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Aucun événement trouvé</h3>
+                        <p className="text-slate-500 max-w-md mx-auto mb-8">
+                            Nous n'avons pas trouvé d'événement correspondant à vos critères "{searchTerm}" dans la catégorie {selectedCategory}.
+                        </p>
                         <Button 
-                            variant="link" 
-                            className="text-green-600 mt-2"
+                            className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-8"
                             onClick={() => {setSelectedCategory('Tous'); setSearchTerm('');}}
                         >
-                            Réinitialiser les filtres
+                            Tout effacer et voir les événements
                         </Button>
                     </div>
                 )}

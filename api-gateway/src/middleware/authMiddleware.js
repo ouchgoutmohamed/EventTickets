@@ -96,6 +96,7 @@ const optionalAuthMiddleware = (req, res, next) => {
     const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - User: anonymous`);
       return next();
     }
 
@@ -103,7 +104,9 @@ const optionalAuthMiddleware = (req, res, next) => {
     try {
       decoded = jwt.verify(token, config.jwt.secret);
     } catch (error) {
-      // En cas d'erreur, on continue sans utilisateur
+      // En cas d'erreur, on log mais on continue sans utilisateur
+      console.log(`[Auth] Erreur de vérification du token: ${error.name} ${error.message}`);
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - User: anonymous (invalid token)`);
       return next();
     }
 
@@ -126,6 +129,7 @@ const optionalAuthMiddleware = (req, res, next) => {
       req.headers['x-organizer-id'] = req.user.organizerId;
     }
 
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - User: ${req.user.email} (ID: ${req.user.id})`);
     next();
   } catch (error) {
     console.error('Erreur dans optionalAuthMiddleware:', error);

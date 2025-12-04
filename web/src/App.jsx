@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import Header from './components/layout/Header';
 import OrganizerLayout from './layouts/OrganizerLayout';
 import OrganizerDashboard from './pages/OrganizerDashboard'
+import OrganizerTicketsPage from './pages/OrganizerTicketsPage';
 import MyEventsPage from './pages/MyEventsPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
@@ -21,6 +22,8 @@ import UserManagement from './features/auth/components/UserManagement';
 import UserDetail from './features/auth/components/UserDetail';
 import CreateOrganizerPage from './pages/CreateOrganizerPage';
 import EditEventPage from './pages/EditEventPage';
+import AboutPage from './pages/about';
+import Footer from './components/layout/Footer';
 
 
 
@@ -28,7 +31,8 @@ export default function App() {
   return (
     <Routes>
            {/* === Routes Publiques (Avec Header public) === */}
-           <Route path="/" element={<><Header /><HomePage /></>} />
+           <Route path="/" element={<><Header /><HomePage /> <Footer /></>} />
+           <Route path="/about" element={<><Header /><AboutPage /></>} />
            <Route path="/events/:id" element={<><Header /><EventDetailsPage /></>} />
            {/* Login et Register sans header */}
            <Route path="/login" element={<LoginPage />} />
@@ -48,7 +52,7 @@ export default function App() {
               <Route path="profile" element={<ProfilePage />} />
               <Route path="create-event" element={<CreateEventPage />} />
               <Route path="my-events" element={<MyEventsPage />} /> 
-              <Route path="tickets" element={<div>Page Tickets (À faire)</div>} />
+              <Route path="tickets" element={<OrganizerTicketsPage />} />
               <Route path="edit-event/:id" element={<EditEventPage />} />
            </Route>
 
