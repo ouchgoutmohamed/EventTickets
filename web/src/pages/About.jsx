@@ -19,6 +19,7 @@ import {
 
 import slimane from '../assets/slimane.jpg';
 import mohamed from '../assets/mohamed.jpg';
+import kamal from '../assets/kamal.jpg';
 
 const AboutPage = () => {
   const navigate = useNavigate();
@@ -132,7 +133,7 @@ const AboutPage = () => {
                 {[
                     { name: "ABDELHADI Slimane", img : slimane , p:"La passion est le moteur de l'innovation. Chez Eventify, nous vivons pour créer des connexions."},
                     { name: "OUCHGOUT Mohamed" , img : mohamed , p: "Derrière chaque événement réussi se cache une architecture solide. Nous repoussons les limites de la technologie pour garantir une fluidité sans faille."},
-                    { name: "IDOUFKIR Kamal" , p:"L'organisation d'événements est un art. Nous sommes les artistes qui sculptent des expériences inoubliables."},
+                    { name: "IDOUFKIR Kamal" , img : kamal , p:"L'organisation d'événements est un art. Nous sommes les artistes qui sculptent des expériences inoubliables."},
                     { name: "RADFI Abdallah",  p:"Chaque billet vendu est une promesse d'émotion. Nous nous engageons à tenir cette promesse avec intégrité et passion."},
                 ].map((member, i) => (
                     <Card key={i} className="border-none shadow-md hover:shadow-xl transition-all duration-300">

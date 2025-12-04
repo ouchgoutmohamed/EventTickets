@@ -49,7 +49,7 @@ const Header = () => {
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             // CAS : CONNECTÉ -> AVATAR
-            <DropdownMenu>
+            <DropdownMenu className="cursor-pointer bg-white">
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer h-9 w-9 border border-gray-200 hover:border-green-500 transition">
                   <AvatarImage src={user.avatarUrl} alt={user.name} />
@@ -57,8 +57,8 @@ const Header = () => {
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              </DropdownMenuTrigger  >
+              <DropdownMenuContent align="end" className="w-56 ">
                 <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>Profil</DropdownMenuItem>

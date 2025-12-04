@@ -30,18 +30,21 @@ app.use(loggingMiddleware);
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
-  if (config.cors.origin.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
+  // Autoriser l'origine si elle est dans la liste autorisée
+  if (config.cors.origin.includes(origin) || config.cors.origin.includes('*')) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
   } else {
-    res.header('Access-Control-Allow-Origin', config.cors.origin[0]);
+    // En développement, autoriser toutes les origines
+    res.header('Access-Control-Allow-Origin', config.nodeEnv === 'development' ? '*' : config.cors.origin[0]);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', config.cors.credentials);
+  res.header('Access-Control-Allow-Credentials', 'true');
   
+  // Gérer la requête preflight OPTIONS
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(204).end();
   }
   
   next();
@@ -91,8 +94,9 @@ app.use('/payments', authMiddleware, paymentsRoutes);
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route non trouvée',
+    message: `Route non trouvée: ${req.method} ${req.path}`,
     path: req.path,
+    method: req.method,
   });
 });
 

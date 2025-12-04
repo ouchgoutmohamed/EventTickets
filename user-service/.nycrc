@@ -1,0 +1,28 @@
+{
+  "all": true,
+  "include": [
+    "src/**/*.js"
+  ],
+  "exclude": [
+    "src/server.js",
+    "src/generated/**",
+    "tests/**",
+    "coverage/**",
+    "node_modules/**"
+  ],
+  "reporter": [
+    "text",
+    "text-summary",
+    "html",
+    "lcov",
+    "json"
+  ],
+  "report-dir": "./coverage",
+  "check-coverage": true,
+  "lines": 70,
+  "statements": 70,
+  "functions": 70,
+  "branches": 70,
+  "cache": true,
+  "temp-dir": "./.nyc_output"
+}

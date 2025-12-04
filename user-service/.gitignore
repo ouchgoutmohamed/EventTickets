@@ -24,3 +24,10 @@ dist/
 build/
 
 /src/generated/prisma
+
+# Tests
+coverage/
+.nyc_output/
+test.db
+test.db-journal
+*.test.db
