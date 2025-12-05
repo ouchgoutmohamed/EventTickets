@@ -5,8 +5,9 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# 1. Copier uniquement pom.xml d'abord pour le cache des dépendances
+# 1. Copier uniquement pom.xml et checkstyle.xml d'abord pour le cache des dépendances
 COPY pom.xml .
+COPY checkstyle.xml .
 
 # 2. Télécharger les dépendances (cette étape est mise en cache si pom.xml ne change pas)
 RUN mvn dependency:go-offline -B

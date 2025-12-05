@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Shield, Ticket } from 'lucide-react';
+import { ArrowLeft, CreditCard, Shield, Ticket, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -25,6 +27,15 @@ const PaymentPage = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // État du formulaire de paiement
+  const [paymentForm, setPaymentForm] = useState({
+    cardNumber: '',
+    cardHolder: '',
+    expiryDate: '',
+    cvv: '',
+  });
+  const [formErrors, setFormErrors] = useState({});
+
   useEffect(() => {
     // Si on n'a pas les détails de la réservation, rediriger
     if (!reservationId) {
@@ -33,9 +44,75 @@ const PaymentPage = () => {
     }
   }, [reservationId, navigate, showError]);
 
+  // Gestion des changements du formulaire
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+
+    // Formatage automatique du numéro de carte (XXXX XXXX XXXX XXXX)
+    if (name === 'cardNumber') {
+      formattedValue = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim().substring(0, 19);
+    }
+    // Formatage automatique de la date d'expiration (MM/YY)
+    if (name === 'expiryDate') {
+      formattedValue = value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').substring(0, 5);
+    }
+    // CVV: max 4 chiffres
+    if (name === 'cvv') {
+      formattedValue = value.replace(/\D/g, '').substring(0, 4);
+    }
+
+    setPaymentForm(prev => ({ ...prev, [name]: formattedValue }));
+    // Effacer l'erreur du champ modifié
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Validation du formulaire
+  const validateForm = () => {
+    const errors = {};
+    
+    // Validation du numéro de carte (16 chiffres)
+    const cardNumberClean = paymentForm.cardNumber.replace(/\s/g, '');
+    if (!cardNumberClean || cardNumberClean.length !== 16) {
+      errors.cardNumber = 'Numéro de carte invalide (16 chiffres requis)';
+    }
+    
+    // Validation du nom du titulaire
+    if (!paymentForm.cardHolder.trim()) {
+      errors.cardHolder = 'Nom du titulaire requis';
+    }
+    
+    // Validation de la date d'expiration
+    if (!paymentForm.expiryDate || paymentForm.expiryDate.length !== 5) {
+      errors.expiryDate = 'Date d\'expiration invalide (MM/YY)';
+    } else {
+      const [month, year] = paymentForm.expiryDate.split('/');
+      const expiry = new Date(2000 + parseInt(year), parseInt(month) - 1);
+      if (expiry < new Date()) {
+        errors.expiryDate = 'Carte expirée';
+      }
+    }
+    
+    // Validation du CVV (3-4 chiffres)
+    if (!paymentForm.cvv || paymentForm.cvv.length < 3) {
+      errors.cvv = 'CVV invalide (3-4 chiffres)';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleConfirmPayment = async () => {
     if (!user || !user.id) {
       showError('Vous devez être connecté pour effectuer un paiement');
+      return;
+    }
+
+    // Valider le formulaire avant de procéder
+    if (!validateForm()) {
+      showError('Veuillez corriger les erreurs du formulaire');
       return;
     }
 
@@ -151,15 +228,80 @@ const PaymentPage = () => {
                 </AlertDescription>
               </Alert>
 
-              {/* Formulaire de paiement simplifié */}
+              {/* Formulaire de paiement */}
               <div className="space-y-4 py-4">
-                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed">
-                  <p className="text-gray-600 mb-4">
-                    Formulaire de paiement
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Intégration du service de paiement en cours...
-                  </p>
+                {/* Numéro de carte */}
+                <div className="space-y-2">
+                  <Label htmlFor="cardNumber" className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Numéro de carte
+                  </Label>
+                  <Input
+                    id="cardNumber"
+                    name="cardNumber"
+                    type="text"
+                    placeholder="1234 5678 9012 3456"
+                    value={paymentForm.cardNumber}
+                    onChange={handleInputChange}
+                    className={formErrors.cardNumber ? 'border-red-500' : ''}
+                  />
+                  {formErrors.cardNumber && (
+                    <p className="text-sm text-red-500">{formErrors.cardNumber}</p>
+                  )}
+                </div>
+
+                {/* Nom du titulaire */}
+                <div className="space-y-2">
+                  <Label htmlFor="cardHolder">Nom du titulaire</Label>
+                  <Input
+                    id="cardHolder"
+                    name="cardHolder"
+                    type="text"
+                    placeholder="JEAN DUPONT"
+                    value={paymentForm.cardHolder}
+                    onChange={handleInputChange}
+                    className={formErrors.cardHolder ? 'border-red-500' : ''}
+                  />
+                  {formErrors.cardHolder && (
+                    <p className="text-sm text-red-500">{formErrors.cardHolder}</p>
+                  )}
+                </div>
+
+                {/* Date d'expiration et CVV */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="expiryDate">Date d'expiration</Label>
+                    <Input
+                      id="expiryDate"
+                      name="expiryDate"
+                      type="text"
+                      placeholder="MM/YY"
+                      value={paymentForm.expiryDate}
+                      onChange={handleInputChange}
+                      className={formErrors.expiryDate ? 'border-red-500' : ''}
+                    />
+                    {formErrors.expiryDate && (
+                      <p className="text-sm text-red-500">{formErrors.expiryDate}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cvv" className="flex items-center gap-2">
+                      <Lock className="h-4 w-4" />
+                      CVV
+                    </Label>
+                    <Input
+                      id="cvv"
+                      name="cvv"
+                      type="password"
+                      placeholder="123"
+                      value={paymentForm.cvv}
+                      onChange={handleInputChange}
+                      className={formErrors.cvv ? 'border-red-500' : ''}
+                    />
+                    {formErrors.cvv && (
+                      <p className="text-sm text-red-500">{formErrors.cvv}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
