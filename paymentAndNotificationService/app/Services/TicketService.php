@@ -211,15 +211,42 @@ class TicketService
             
             if ($response->successful()) {
                 $data = $response->json();
+                
+                // Extraire le lieu depuis l'objet venue ou le champ location
+                $location = 'Non spécifié';
+                if (isset($data['venue']) && is_array($data['venue'])) {
+                    $venue = $data['venue'];
+                    $location = trim(($venue['name'] ?? '') . ', ' . ($venue['city'] ?? ''));
+                    $location = rtrim($location, ', ') ?: 'Non spécifié';
+                } elseif (isset($data['location'])) {
+                    $location = $data['location'];
+                }
+
+                // Extraire la catégorie depuis l'objet category
+                $category = null;
+                if (isset($data['category']) && is_array($data['category'])) {
+                    $category = $data['category']['name'] ?? null;
+                } elseif (isset($data['category']) && is_string($data['category'])) {
+                    $category = $data['category'];
+                }
+
+                // Extraire l'image principale
+                $image = null;
+                if (isset($data['images']) && is_array($data['images']) && count($data['images']) > 0) {
+                    $image = $data['images'][0]['imageUrl'] ?? $data['images'][0]['url'] ?? null;
+                } elseif (isset($data['image'])) {
+                    $image = $data['image'];
+                }
+
                 return [
                     'id' => $eventId,
                     'title' => $data['title'] ?? $data['name'] ?? 'Événement',
                     'description' => $data['description'] ?? '',
                     'date' => $data['date'] ?? $data['eventDate'] ?? null,
-                    'time' => $data['time'] ?? $data['eventTime'] ?? null,
-                    'location' => $data['location'] ?? $data['venue'] ?? 'Non spécifié',
-                    'category' => $data['category'] ?? null,
-                    'image' => $data['image'] ?? $data['imageUrl'] ?? null,
+                    'time' => $data['startTime'] ?? $data['time'] ?? null,
+                    'location' => $location,
+                    'category' => $category,
+                    'image' => $image,
                 ];
             }
         } catch (Exception $e) {

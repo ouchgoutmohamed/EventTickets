@@ -124,13 +124,17 @@ const EventList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events.map((event) => (
+              {events.map((event) => {
+                const eventImage = event.images && event.images.length > 0 && event.images[0].url 
+                  ? event.images[0].url 
+                  : null;
+                return (
                 <TableRow key={event.id} className="hover:bg-gray-50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      {event.imageUrl && (
+                      {eventImage && (
                         <img
-                          src={event.imageUrl}
+                          src={eventImage}
                           alt=""
                           className="h-10 w-10 rounded object-cover bg-gray-100"
                         />
@@ -140,7 +144,7 @@ const EventList = () => {
                           {event.title}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {event.category.categoryType}
+                          {event.category?.categoryType || 'Événement'}
                         </div>
                       </div>
                     </div>
@@ -199,7 +203,7 @@ const EventList = () => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )})}
             </TableBody>
           </Table>
         </div>

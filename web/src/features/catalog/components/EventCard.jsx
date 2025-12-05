@@ -11,7 +11,11 @@ const EventCard = ({ event }) => {
   const statusConfig = getStatusConfig(event.status);
 
   // === LOGIQUE D'EXTRACTION ===
-  const imageUrl = event.images && event.images.length > 0 ? event.images[0].url : '/placeholder-event.jpg';
+  // Fallback to a reliable placeholder image
+  const defaultImage = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=400&auto=format&fit=crop";
+  const imageUrl = event.images && event.images.length > 0 && event.images[0].url 
+    ? event.images[0].url 
+    : defaultImage;
   
   // Prix min
   const minPrice = event.tickets && event.tickets.length > 0 
@@ -50,7 +54,7 @@ const EventCard = ({ event }) => {
           src={imageUrl} 
           alt={event.title} 
           className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-          onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=Event"; }} 
+          onError={(e) => { e.target.src = defaultImage; }} 
         />
         
         {/* 🛡️ OVERLAY STATUT (Si pas ouvert) */}

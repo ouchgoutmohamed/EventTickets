@@ -24,16 +24,27 @@ class TicketResource extends JsonResource
         // Utiliser le cache pour éviter les appels répétés
         return Cache::remember("event_info_{$eventId}", 300, function () use ($eventId) {
             try {
-                $eventServiceUrl = config('services.event_catalog.url', 'http://event-catalog-service:8081');
+                $eventServiceUrl = config('services.event_catalog.url', 'http://event-catalog-service:8080');
                 $response = Http::timeout(5)->get("{$eventServiceUrl}/api/events/{$eventId}");
                 
                 if ($response->successful()) {
                     $data = $response->json();
+                    
+                    // Extraire le lieu depuis l'objet venue ou le champ location
+                    $location = 'Non spécifié';
+                    if (isset($data['venue']) && is_array($data['venue'])) {
+                        $venue = $data['venue'];
+                        $location = trim(($venue['name'] ?? '') . ', ' . ($venue['city'] ?? ''));
+                        $location = rtrim($location, ', ') ?: 'Non spécifié';
+                    } elseif (isset($data['location'])) {
+                        $location = $data['location'];
+                    }
+
                     return [
                         'id' => $eventId,
                         'title' => $data['title'] ?? $data['name'] ?? 'Événement',
                         'date' => $data['date'] ?? $data['eventDate'] ?? null,
-                        'location' => $data['location'] ?? $data['venue'] ?? 'Non spécifié',
+                        'location' => $location,
                     ];
                 }
             } catch (\Exception $e) {
