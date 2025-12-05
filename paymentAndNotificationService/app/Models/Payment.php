@@ -13,6 +13,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id', // To link payment to the customer.
         'transaction_id', // Unique ID for tracking (UUID).
+        'reservation_id', // Link to the reservation in TicketInventoryService.
         'amount', // How much the user pays.
         'currency', // Always store currency (USD, MAD…), even if always same.
         'status', // PENDING, SUCCESS, FAILED, REFUNDED.

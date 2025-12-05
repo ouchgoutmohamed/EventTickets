@@ -1,0 +1,159 @@
+# =========================
+# Build & Dependencies
+# =========================
+
+# Maven
+target/
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+build/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# PHP / Laravel
+vendor/
+.env
+.env.backup
+.env.production
+storage/*.key
+Homestead.yaml
+Homestead.json
+/.vagrant
+.phpunit.result.cache
+
+# =========================
+# IDE & Editor
+# =========================
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# =========================
+# Test Results & Reports
+# =========================
+
+# JaCoCo Coverage Reports
+**/target/site/
+**/jacoco.exec
+**/jacoco/
+
+# JMeter Results
+**/*.jtl
+**/jmeter/report*/
+**/jmeter/results*/
+
+# Checkstyle Reports
+**/checkstyle-result.xml
+**/checkstyle-cachefile
+
+# Surefire Reports
+**/surefire-reports/
+
+# Test output
+test-output/
+**/test-results/
+
+# Aggregate Reports (CSV)
+aggregate_report*.csv
+summary_report*.csv
+
+# =========================
+# Logs & Runtime
+# =========================
+
+# Logs
+*.log
+logs/
+**/storage/logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# OS & System Files
+# =========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# =========================
+# Docker
+# =========================
+.docker/
+
+# =========================
+# Miscellaneous
+# =========================
+
+# Compiled class files
+*.class
+
+# Package Files
+*.zip
+*.tar.gz
+*.rar
+
+# Temp files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Secrets & credentials
+*.pem
+*.key
+credentials.json
+secrets.json

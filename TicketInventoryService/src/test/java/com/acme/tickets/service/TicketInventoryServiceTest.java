@@ -11,6 +11,7 @@ import com.acme.tickets.domain.repository.TicketRepository;
 import com.acme.tickets.dto.*;
 import com.acme.tickets.exception.InsufficientStockException;
 import com.acme.tickets.exception.InventoryNotFoundException;
+import com.acme.tickets.integration.EventCatalogClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import org.mockito.quality.Strictness;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -50,6 +52,9 @@ class TicketInventoryServiceTest {
     @Mock
     private TicketInventoryProperties properties;
 
+    @Mock
+    private EventCatalogClient eventCatalogClient;
+
     @InjectMocks
     private TicketInventoryService service;
 
@@ -68,6 +73,9 @@ class TicketInventoryServiceTest {
         // Mock properties
         when(properties.getReservationHoldMinutes()).thenReturn(15);
         when(properties.getMaxTicketsPerReservation()).thenReturn(10);
+        
+        // Mock EventCatalogClient - return empty map (no category limit applied)
+        when(eventCatalogClient.getEventById(anyLong())).thenReturn(Map.of());
     }
 
     @Test
@@ -128,18 +136,24 @@ class TicketInventoryServiceTest {
     }
 
     @Test
-    @DisplayName("GIVEN inventaire inexistant WHEN reserve THEN exception levée")
+    @DisplayName("GIVEN inventaire inexistant WHEN reserve THEN lazy init + stock insuffisant")
     void shouldThrowExceptionWhenInventoryNotFound() {
-        // GIVEN
+        // GIVEN - inventory doesn't exist, will trigger lazy initialization
         when(inventoryRepository.findByIdWithLock(999L))
             .thenReturn(Optional.empty());
+        
+        // Mock the lazy initialization: eventCatalogClient returns empty event, 
+        // so inventory is created with total=0
+        Inventory emptyInventory = new Inventory(999L, 0);
+        when(inventoryRepository.save(any(Inventory.class)))
+            .thenReturn(emptyInventory);
 
         ReserveRequest invalidRequest = new ReserveRequest(999L, 42L, 2);
 
-        // WHEN / THEN
+        // WHEN / THEN - with 0 total tickets, reservation of 2 should fail
         assertThatThrownBy(() -> service.reserveTickets(invalidRequest, null))
-            .isInstanceOf(InventoryNotFoundException.class)
-            .hasMessageContaining("999");
+            .isInstanceOf(InsufficientStockException.class)
+            .hasMessageContaining("Stock insuffisant");
     }
 
     @Test
