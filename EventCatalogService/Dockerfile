@@ -1,20 +1,23 @@
 # Dockerfile pour Event Catalog Service (Spring Boot)
+# Optimisé pour utiliser le cache Docker
+
 FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copier le pom.xml et télécharger les dépendances
+# 1. Copier uniquement pom.xml d'abord pour le cache des dépendances
 COPY pom.xml .
-RUN mvn dependency:go-offline
 
-# Copier les fichiers de configuration (checkstyle)
-COPY checkstyle.xml .
+# 2. Télécharger les dépendances (cette étape est mise en cache si pom.xml ne change pas)
+RUN mvn dependency:go-offline -B
 
-# Copier le code source et construire
+# 3. Copier le code source
 COPY src ./src
-RUN mvn clean package -DskipTests -Dcheckstyle.skip=true
 
-# Image finale
+# 4. Construire le projet (skip tests pour accélérer)
+RUN mvn clean package -DskipTests -B
+
+# Image finale légère
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Payment;
+use App\Models\Ticket;
 use App\Enums\PaymentStatus;
 use Illuminate\Support\Str;
 use Exception;
@@ -12,6 +13,16 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentService
 {
+    /**
+     * Service de gestion des tickets.
+     */
+    protected TicketService $ticketService;
+
+    public function __construct(TicketService $ticketService)
+    {
+        $this->ticketService = $ticketService;
+    }
+
     public function execute(array $data): Payment
     {
         $payment = Payment::create([
@@ -26,43 +37,27 @@ class PaymentService
         ]);
 
         try {
-            // Simulate payment gateway logic here
-            // $success = rand(0, 1); // Fake outcome
-
-            // if ($success) {
-            //     $payment->update([
-            //         'status' => PaymentStatus::SUCCESS->value,
-            //         'transaction_id' => Str::uuid(),
-            //     ]);
-            // } else {
-            //     $payment->update([
-            //         'status' => PaymentStatus::FAILED->value,
-            //         'reason' => 'Insufficient funds',
-            //     ]);
-            // }
-
+            // Simulate payment gateway logic here (always success for now)
             $payment->update([
                 'status' => PaymentStatus::SUCCESS->value,
                 'transaction_id' => Str::uuid(),
             ]);
 
-            // Publier le message RabbitMQ pour le TicketInventoryService
-            $this->publishPaymentStatus($payment, $success);
-            if (!app()->environment('testing')) {
-                $connection = new AMQPStreamConnection(config("services.rabbitmq.url"), 5672, 'guest', 'guest');
-                $channel = $connection->channel();
-
-                $channel->queue_declare('payment', false, true, false, false);
-
-                // $msg = $success ? PaymentStatus::SUCCESS->value : PaymentStatus::FAILED->value;
-                $msg = new AMQPMessage(PaymentStatus::SUCCESS->value, [
-                    'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
+            // === GÉNÉRATION AUTOMATIQUE DU TICKET APRÈS PAIEMENT RÉUSSI ===
+            // Le ticket est généré de manière idempotente (pas de doublon)
+            try {
+                $ticket = $this->ticketService->generateTicketForPayment($payment);
+                Log::info("🎟️ Ticket généré automatiquement après paiement", [
+                    'payment_id' => $payment->id,
+                    'ticket_uuid' => $ticket->ticket_uuid,
                 ]);
-                $channel->basic_publish($msg, '', 'status');
-
-                $channel->close();
-                $connection->close();
+            } catch (Exception $ticketException) {
+                // Log l'erreur mais ne bloque pas le paiement
+                Log::error("❌ Erreur lors de la génération du ticket: " . $ticketException->getMessage());
             }
+
+            // Publier le message RabbitMQ pour le TicketInventoryService
+            $this->publishPaymentStatus($payment, true);
 
             return $payment;
         } catch (Exception $e) {

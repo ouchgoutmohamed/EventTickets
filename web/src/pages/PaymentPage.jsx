@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Shield } from 'lucide-react';
+import { ArrowLeft, CreditCard, Shield, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -8,14 +8,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import ReservationTimer from '@/features/inventory/components/ReservationTimer';
 import { useReservation } from '@/features/inventory/hooks/useReservation';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { executePayment } from '@/features/payments/services/paymentService';
 
 const PaymentPage = () => {
   const { reservationId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { confirm, release, loading } = useReservation();
-  const { error: showError } = useToast();
+  const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useToast();
 
   // Récupérer les détails de la réservation depuis l'état de navigation
   const reservationDetails = location.state?.reservation;
@@ -31,15 +34,47 @@ const PaymentPage = () => {
   }, [reservationId, navigate, showError]);
 
   const handleConfirmPayment = async () => {
+    if (!user || !user.id) {
+      showError('Vous devez être connecté pour effectuer un paiement');
+      return;
+    }
+
     setIsProcessing(true);
     try {
+      // 1. Exécuter le paiement via le PaymentService
+      // Cela génère automatiquement un ticket électronique
+      const totalAmount = reservationDetails?.totalPrice || 
+                         (reservationDetails?.quantity * (reservationDetails?.unitPrice || 0)) ||
+                         100;
+      
+      const paymentResult = await executePayment({
+        user_id: user.id,
+        event_id: reservationDetails?.eventId || 1,
+        ticket_id: reservationDetails?.ticketId || 1,
+        reservation_id: reservationId,
+        amount: totalAmount,
+        currency: 'MAD',
+        method: 'Credit Card',
+      });
+
+      console.log('✅ Paiement réussi:', paymentResult);
+
+      // 2. Confirmer la réservation dans l'inventaire
       await confirm(reservationId);
-      // Redirection vers la page de mes réservations après succès
-      navigate('/my-reservations', { 
-        state: { message: 'Paiement confirmé avec succès !' }
+
+      showSuccess('Paiement confirmé ! Votre billet a été généré.');
+
+      // 3. Redirection vers la page "Mes Billets"
+      navigate('/my-tickets', { 
+        state: { 
+          message: 'Paiement confirmé avec succès ! Votre billet est disponible.',
+          fromPayment: true,
+          paymentId: paymentResult?.id
+        }
       });
     } catch (err) {
-      console.error('Erreur lors de la confirmation du paiement:', err);
+      console.error('Erreur lors du paiement:', err);
+      showError(err.response?.data?.message || 'Erreur lors du paiement');
     } finally {
       setIsProcessing(false);
     }

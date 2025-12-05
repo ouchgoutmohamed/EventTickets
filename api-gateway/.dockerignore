@@ -1,0 +1,24 @@
+# Dépendances
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# Tests
+tests/
+*.test.js
+coverage/
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Logs
+*.log
+logs/

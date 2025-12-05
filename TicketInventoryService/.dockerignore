@@ -1,0 +1,27 @@
+# Fichiers compilés
+target/
+
+# IDE et éditeurs
+.idea/
+.vscode/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# Maven wrapper (on utilise celui du conteneur)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Tests et rapports
+*.jmx
+jmeter/
+docs/
+*.md
+!README.md
+
+# Logs
+*.log
+logs/
