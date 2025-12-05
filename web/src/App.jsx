@@ -22,7 +22,7 @@ import UserManagement from './features/auth/components/UserManagement';
 import UserDetail from './features/auth/components/UserDetail';
 import CreateOrganizerPage from './pages/CreateOrganizerPage';
 import EditEventPage from './pages/EditEventPage';
-import AboutPage from './pages/about';
+import AboutPage from './pages/About';
 import Footer from './components/layout/Footer';
 
 

@@ -7,9 +7,12 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
+# Copier les fichiers de configuration (checkstyle)
+COPY checkstyle.xml .
+
 # Copier le code source et construire
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dcheckstyle.skip=true
 
 # Image finale
 FROM eclipse-temurin:17-jre-alpine

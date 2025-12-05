@@ -78,9 +78,6 @@ const OrganizerDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-500">Revenu Total</CardTitle>
-            <DollarSign className="w-4 h-4 text-green-600" />
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Événements Total</CardTitle>
             <Calendar className="w-4 h-4 text-blue-600" />
           </CardHeader>
@@ -93,9 +90,6 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-500">Billets Vendus</CardTitle>
-            <TicketIcon className="w-4 h-4 text-blue-600" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Capacité Totale</CardTitle>
             <Users className="w-4 h-4 text-purple-600" />
@@ -110,9 +104,6 @@ const OrganizerDashboard = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-500">Événements Actifs</CardTitle>
-            <Calendar className="w-4 h-4 text-purple-600" />
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Ce Mois</CardTitle>
             <Activity className="w-4 h-4 text-green-600" />
           </CardHeader>
@@ -125,9 +116,6 @@ const OrganizerDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-500">Taux de Remplissage</CardTitle>
-            <TrendingUp className="w-4 h-4 text-orange-600" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-gray-500">Mois Prochain</CardTitle>
             <TrendingUp className="w-4 h-4 text-orange-600" />

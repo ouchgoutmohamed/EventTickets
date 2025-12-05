@@ -8,7 +8,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: eventtickets_users
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -79,7 +79,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SERVER_PORT: 8082
-      RABBITMQ_SERVICE_URL: rabbitmq
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+      EVENTCATALOG_SERVICE_URL: http://event-catalog-service:8080
     ports:
       - "8082:8082"
     depends_on:
@@ -96,6 +100,19 @@ services:
       context: ./paymentAndNotificationService
     container_name: eventtickets-payment
     restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: eventtickets_payments
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
     ports:
       - "8083:8000"
     depends_on:
@@ -103,8 +120,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
-    volumes:
-      - ./paymentAndNotificationService:/var/www/html
     networks:
       - eventtickets-network
     command: sh -c "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
