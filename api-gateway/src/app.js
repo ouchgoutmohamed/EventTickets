@@ -9,6 +9,7 @@ const {
   eventsRoutes,
   inventoryRoutes,
   paymentsRoutes,
+  ticketsRoutes,
 } = require('./routes');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
@@ -72,6 +73,7 @@ app.get('/', (req, res) => {
       events: '/events',
       inventory: '/inventory',
       payments: '/payments',
+      tickets: '/tickets',
     },
   });
 });
@@ -86,9 +88,13 @@ app.get('/inventory/availability/:eventId', optionalAuthMiddleware, inventoryRou
 // Routes protégées (avec authentification) pour le reste des endpoints inventory
 app.use('/inventory', authMiddleware, inventoryRoutes);
 
+// Route publique: impression de ticket (accessible via lien direct/email)
+app.get('/tickets/:uuid/print', ticketsRoutes);
+
 // Routes protégées (avec authentification)
 app.use('/users', authMiddleware, usersRoutes);
 app.use('/payments', authMiddleware, paymentsRoutes);
+app.use('/tickets', authMiddleware, ticketsRoutes);  // Routes pour les billets électroniques
 
 // Middleware de gestion des routes non trouvées
 app.use((req, res) => {

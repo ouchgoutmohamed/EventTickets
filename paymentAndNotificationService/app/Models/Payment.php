@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Casts\MoneyCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Payment extends Model
 {
@@ -36,9 +38,19 @@ class Payment extends Model
         ];
     }
 
-    public function notification()
+    /**
+     * Relation avec les notifications.
+     */
+    public function notification(): HasMany
     {
         return $this->hasMany(Notification::class);
     }
 
+    /**
+     * Relation avec le ticket électronique généré après le paiement.
+     */
+    public function ticket(): HasOne
+    {
+        return $this->hasOne(Ticket::class);
+    }
 }

@@ -1,0 +1,44 @@
+# Dépendances
+vendor/
+
+# Environment files (use docker-compose environment variables instead)
+.env
+.env.*
+!.env.example
+
+# Fichiers de cache et logs
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# IDE et éditeurs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Tests
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Fichiers de développement
+.env.example
+.env.local
+docker-compose*.yml
+Dockerfile.dev
+
+# Node (si présent)
+node_modules/
+package-lock.json

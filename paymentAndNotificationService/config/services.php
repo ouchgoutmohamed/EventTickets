@@ -13,10 +13,33 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Microservices URLs
+    |--------------------------------------------------------------------------
+    */
     'rabbitmq' => [
-        'url' => env('RABBITMQ_SERVICE_URL')
+        'url' => env('RABBITMQ_SERVICE_URL', 'localhost'),
     ],
 
+    'event_catalog' => [
+        'url' => env('EVENT_CATALOG_SERVICE_URL', 'http://event-catalog:8080'),
+    ],
+
+    'user_service' => [
+        'url' => env('USER_SERVICE_URL', 'http://user-service:3001'),
+    ],
+
+    'ticket_inventory' => [
+        'url' => env('TICKET_INVENTORY_SERVICE_URL', 'http://ticket-inventory:8083'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | External Services
+    |--------------------------------------------------------------------------
+    */
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
