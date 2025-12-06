@@ -207,7 +207,8 @@ class TicketService
     protected function fetchEventInfo(int $eventId): array
     {
         try {
-            $response = Http::timeout(5)->get("{$this->eventServiceUrl}/api/events/{$eventId}");
+            // EventCatalogService utilise /events/{id} sans préfixe /api
+            $response = Http::timeout(5)->get("{$this->eventServiceUrl}/events/{$eventId}");
             
             if ($response->successful()) {
                 $data = $response->json();

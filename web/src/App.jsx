@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import PaymentPage from './pages/PaymentPage';
 import MyReservationsPage from './pages/MyReservationsPage';
 import MyTicketsPage from './pages/MyTicketsPage';
+import TicketDetailsPage from './pages/TicketDetailsPage';
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import RoleManagement from './features/auth/components/RoleManagement';
@@ -46,6 +47,7 @@ export default function App() {
            <Route path="/payment/:reservationId" element={<><Header /><PaymentPage /></>} />
            <Route path="/my-reservations" element={<><Header /><MyReservationsPage /></>} />
            <Route path="/my-tickets" element={<><Header /><MyTicketsPage /></>} />
+           <Route path="/my-tickets/:ticketUuid" element={<><Header /><TicketDetailsPage /></>} />
 
            {/* === Routes Organisateur (Avec Layout dédié) === */}
            <Route path="/organizer" element={<OrganizerLayout />}>

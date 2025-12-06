@@ -25,7 +25,8 @@ class TicketResource extends JsonResource
         return Cache::remember("event_info_{$eventId}", 300, function () use ($eventId) {
             try {
                 $eventServiceUrl = config('services.event_catalog.url', 'http://event-catalog-service:8080');
-                $response = Http::timeout(5)->get("{$eventServiceUrl}/api/events/{$eventId}");
+                // EventCatalogService utilise /events/{id} sans préfixe /api
+                $response = Http::timeout(5)->get("{$eventServiceUrl}/events/{$eventId}");
                 
                 if ($response->successful()) {
                     $data = $response->json();
